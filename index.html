@@ -96,11 +96,12 @@
 <h2>Resource</h2><p>A resource has always a parent resource and may have multiple child resources. Furthermore, each resource has properties which represent the specific information of the resource.</p>
 <p><img src="http://dachshund-wcms.github.io/tutorials/resource.svg" alt="Rest API"></p>
 <p>The abstract class <a href="Resource.html">Resource</a> and documents the members and the methods to access the resource information. </p>
-<h2>REST API</h2><p>Each resource can be referenced through it's path in the hierarchy. The access takes place by stating the resource path, which is usually a sub path of <em>/content</em>, directly behind the URL. To render the content, the representation of the content is defined within the extension. Furthermore one or multiple selectors can be defined to get different views. </p>
+<h2>REST API</h2><p>Each resource can be referenced through it's path in the hierarchy. The access takes place by stating the resource path, which is usually a subpath of <em>/content</em>, directly behind the URL. To render the content, the representation of the content is stated in the extension. To get more flexibility on rendering differend kind of views one or multiple dot separated selectors can be defined between the resource path and the extension. </p>
 <p><img src="http://dachshund-wcms.github.io/tutorials/rest-api.svg" alt="Rest API"></p>
 <p>The class <a href="RequestPathInfo.html">RequestPathInfo</a> documents the members and methods to access the information passed with the request.</p>
-<h2>Component Handling</h2><p>To build the view of a resource is requires a component resource to process the content resource data and provide the rendered information in the way they were requested. To do this the content </p>
-<h2>Folder Structure</h2><ul>
+<h2>Component Handling</h2><p>To render a resource it requires a component which is able to generate the requested view. The component is referenced trough the property <em>componentPath</em> in the requested resource. During a request the content resource is loaded, the property <em>componentPath</em> is resolved to the component and both are processed to send the requested view in the response. Within the component Javascript or Jazz Templates can be defined to build the view. To utilize the development process components can be inherited and build upon each other.</p>
+<p><img src="http://dachshund-wcms.github.io/tutorials/component-handling.svg" alt="Rest API"></p>
+<h2>Application Server Structure</h2><ul>
 <li><strong>/apps</strong> <em>(system as well as custom application code)</em></li>
 <li><strong>/content</strong> <em>(content for each site and their sub pages)</em></li>
 <li><strong>/config</strong> <em>(application configuration)</em></li>
@@ -114,24 +115,25 @@
 <li>Internet access to clone Dachshund from git and to download 3rd party npm modules</li>
 <li>GIT Version Control System (command line client or some UI client)</li>
 </ul>
-<h2>Setup</h2><h3>Step 1 - Clone Dachshund from GitHub</h3><p>Use your UI client and clone the repository <em>https://github.com/sbrinkmann/dachshund</em> change to the flag version 2.0 or use a command line client.</p>
+<h2>Setup</h2><h3>Step 1 - Clone Dachshund from GitHub</h3><p>Use your UI client and clone the repository <em><a href="https://github.com/dachshund-wcms/core">https://github.com/dachshund-wcms/core</a></em> change to the flag version 2.0 or use a command line client.</p>
 <blockquote>
-<p>cd basepath/to/clone/dachshund<br>git clone https://github.com/sbrinkmann/dachshund<br>cd dachshund<br>git checkout 2.0 </p>
+<p>cd basepath/to/clone/dachshund<br>git clone <a href="https://github.com/dachshund-wcms/core">https://github.com/dachshund-wcms/core</a> dachshund<br>cd dachshund<br>git checkout 2.0</p>
 </blockquote>
 <h3>Step 2 - Finish installation</h3><p>Open a command line window and change to the dachshund folder. There you have to download the dependencies with node package manager as they're defined in the <em>package.json</em>.</p>
 <blockquote>
 <p>cd path/to/dachshund<br>npm install</p>
 </blockquote>
-<h2>Startup</h2><p>Dachshund provides two methods to be started as normal or as debug application. The difference is that with one method its possible to use remote debugging. The other one starts just the application and redirects the log output. Into </p>
+<h2>Startup</h2><p>Dachshund provides two methods to be started as normal or as debug application from the shell. The difference is that with one method its possible to use remote debugging like <a href="https://github.com/node-inspector/node-inspector">node-inspector</a>. The other one starts just the application and redirects the log output into a log file.</p>
 <h2>Version History</h2><ul>
 <li><strong>2.0</strong> - First publicly available version. It is contains the core of <em>Dachshund</em> and all functionality to build applications or rich frontend on top of it.<ul>
 <li>REST API</li>
 <li>Resource Resolving and Managing</li>
 <li>Component Handling</li>
 <li>Basic Authentication and Authorization</li>
-<li>Central configuration framework</li>
+<li>Central <a href="https://www.npmjs.com/package/config">configuration framework</a></li>
 <li>Render HTML templates with <a href="https://github.com/shinetech/jazz">Jazz</a> templating engine</li>
-<li>Render CSS templates with Less</li>
+<li>Render CSS templates with <a href="https://www.npmjs.com/package/less">Less</a></li>
+<li>Multilingual Support with <a href="https://www.npmjs.com/package/i18n">i18n</a></li>
 </ul>
 </li>
 <li><strong>1.0</strong> - Was the first implementation which was a proof of concept and used only for internal implementations, it provided the same functionality as the first published version 2.0 but wasn't tested or documented in any kind</li>

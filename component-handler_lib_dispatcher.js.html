@@ -132,19 +132,19 @@ dispatcher.dispatchRequest = function(req, res, pathInfo, contentResource) {
 		}
 	});
 
-	if (contentResource.properties.resourcePath == undefined)
+	if (contentResource.properties.componentPath == undefined)
 	{
 		deferred.reject(new Error("Resource path is not set for resource '" + contentResource.path + "'"));
 	}
 
-	let contentResourcePath = contentResource.properties.resourcePath;
+	let componentResourcePath = contentResource.properties.componentPath;
 
-	if (contentResource.properties.resourcePath == "SELF")
+	if (contentResource.properties.componentPath == "SELF")
 	{
-		contentResourcePath = contentResource.path;
+		componentResourcePath = contentResource.path;
 	}
 
-	repositoryManager.resolve(contentResourcePath).then(function(componentResource) {
+	repositoryManager.resolve(componentResourcePath).then(function(componentResource) {
 		return componentLoader.load(req, res, pathInfo, contentResource, componentResource);
 	}).then(function(component) {
 		componentHandler.handle(component).then(deferred.resolve).fail(deferred.reject);
@@ -165,7 +165,7 @@ dispatcher.dispatchComponent = function(resourcePath, componentPath, parentCompo
 			{
 				contentResource.properties.timeCreated = new Date();
 			}
-			contentResource.properties.resourcePath = subComponentResource.path;
+			contentResource.properties.componentPath = subComponentResource.path;
 			contentResource.saveProperties().then(deferred.resolve).fail(deferred.reject);
 		}
 		else
@@ -176,18 +176,18 @@ dispatcher.dispatchComponent = function(resourcePath, componentPath, parentCompo
 	};
 
 	const loadComponent = function() {
-		if (componentPath == undefined &amp;&amp; contentResource.properties.resourcePath != undefined)
+		if (componentPath == undefined &amp;&amp; contentResource.properties.componentPath != undefined)
 		{
-			componentPath = contentResource.properties.resourcePath;
+			componentPath = contentResource.properties.componentPath;
 			repositoryManager.resolve(componentPath).then(function(subComponentResource) {
 				handleComponent(subComponentResource);
 			}).fail(function(err) {
 				logger.error("Error while resolving resource '" + componentPath + "' because of: " + err.toString());
 			});
 		}
-		else if (componentPath != undefined &amp;&amp; componentPath.startsWith("./") &amp;&amp; contentResource.properties.resourcePath != undefined)
+		else if (componentPath != undefined &amp;&amp; componentPath.startsWith("./") &amp;&amp; contentResource.properties.componentPath != undefined)
 		{
-			componentPath = contentResource.properties.resourcePath + "/" + componentPath.substringAfter("./");
+			componentPath = contentResource.properties.componentPath + "/" + componentPath.substringAfter("./");
 			repositoryManager.resolve(componentPath).then(function(subComponentResource) {
 				handleComponent(subComponentResource);
 			}).fail(function(err) {

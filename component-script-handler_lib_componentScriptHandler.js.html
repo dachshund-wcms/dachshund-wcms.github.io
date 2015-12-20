@@ -98,7 +98,7 @@ exports.getScriptHandler = function(extension) {
 		loadScriptHandler();
 	}
 
-	return componentScriptHandler._scriptHandler[extension];
+	return _scriptHandler[extension];
 };
 
 const loadScriptHandler = function() {
@@ -109,7 +109,7 @@ const loadScriptHandler = function() {
 		{
 			let scriptHandler = require("./componentScriptHandler/" + file);
 
-			componentScriptHandler._scriptHandler[scriptHandler.extension] = scriptHandler;
+			_scriptHandler[scriptHandler.extension] = scriptHandler;
 		} catch (err)
 		{
 			logger.error("Error while loading component script handler '"+ file +"' because of: " + err)

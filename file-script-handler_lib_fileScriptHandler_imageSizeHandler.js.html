@@ -277,10 +277,10 @@ const ImageProperties = function(pathInfo) {
 	this.height = parseInt(sizeParts[1]);
 	assert(!isNaN(this.height), "Defined height isn't a number");
 
-	let completeSourcePath = pathInfo.resourcePath + "." + pathInfo.extension;
+	let completeSourcePath = pathInfo.componentPath + "." + pathInfo.extension;
 	if (selectorParts.length > 0)
 	{
-		completeSourcePath = pathInfo.resourcePath + "." + selectorParts.join(".") + "." + pathInfo.extension;
+		completeSourcePath = pathInfo.componentPath + "." + selectorParts.join(".") + "." + pathInfo.extension;
 	}
 	this.sourceFilePath = completeSourcePath.lastSubstringBefore("/");
 	this.sourceFileName = completeSourcePath.lastSubstringAfter("/");

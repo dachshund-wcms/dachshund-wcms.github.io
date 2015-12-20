@@ -147,7 +147,7 @@ imageDimensionsHandler.handle = function(req, resp, pathInfo, resource)
 	}
 	let selector = selectorParts.join(".");
 	
-	let naturalImagePath = pathInfo.resourcePath + "." + selector;
+	let naturalImagePath = pathInfo.componentPath + "." + selector;
 	repositoryManager.resolve(naturalImagePath).then(function(resource){
 		let imagePath = naturalImagePath;
 		if(resource.source != undefined)

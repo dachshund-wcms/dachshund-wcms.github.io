@@ -124,7 +124,7 @@ class RequestPathInfo {
 		 * Whole the application path which include everything behind the hostname up to the first dot (e.g. '/path/to/my/content')
 		 * @type {string}
 		 */
-		this.resourcePath = null;
+		this.componentPath = null;
 
 		/**
 		 * Selector string of the URI. Contains everything of the complete path between the first and the last dot of the completePath
@@ -207,7 +207,7 @@ class RequestPathInfo {
 			"method": this.method,
 			"url": this.url,
 			"completePath": this.completePath,
-			"resourcePath": this.resourcePath,
+			"componentPath": this.componentPath,
 			"selector": this.selector,
 			"extension": this.extension,
 			"suffix": this.suffix,
@@ -241,7 +241,7 @@ const extractApplicationPath = function(pathInfo, requestURL) {
 
 		pathInfo.url = requestURL;
 		pathInfo.completePath = decodeURIComponent(requestURL.substringBefore("?") + "");
-		pathInfo.resourcePath = pathInfo.completePath.match(/^(\/.?[^\/.]*)*/)[0] + "";
+		pathInfo.componentPath = pathInfo.completePath.match(/^(\/.?[^\/.]*)*/)[0] + "";
 
 		let urlAfterResource = pathInfo.completePath.lastSubstringAfter(".");
 		pathInfo.parameters = parsedUrl.query;
@@ -253,10 +253,10 @@ const extractApplicationPath = function(pathInfo, requestURL) {
 			pathInfo.extension = urlAfterResource.substr(0, urlAfterResource.length - pathInfo.suffix.length);
 			pathInfo.completePath = pathInfo.completePath.substr(0, pathInfo.completePath.length - pathInfo.suffix.length);
 		}
-		let extensionHasSelector = ((pathInfo.completePath.length - 1) > (pathInfo.resourcePath.length + pathInfo.extension.length))
+		let extensionHasSelector = ((pathInfo.completePath.length - 1) > (pathInfo.componentPath.length + pathInfo.extension.length))
 		if (extensionHasSelector)
 		{
-			pathInfo.selector = pathInfo.completePath.substringBetween(pathInfo.resourcePath + ".", "." + pathInfo.extension);
+			pathInfo.selector = pathInfo.completePath.substringBetween(pathInfo.componentPath + ".", "." + pathInfo.extension);
 		}
 	} catch (err)
 	{

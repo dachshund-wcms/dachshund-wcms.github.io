@@ -95,7 +95,7 @@ componentLoader.load = function(req, res, pathInfo, contentResource, componentRe
 		}).then(function(superComponent) {
 			component.superComponent = superComponent;
 			deferred.resolve(component);
-		});
+		}).fail(deferred.reject);
 	}
 	else
 	{

@@ -138,7 +138,7 @@ imageExifHandler.handle = function(req, resp, pathInfo) {
 	}
 	let selector = selectorParts.join(".");
 
-	let imagePath = pathInfo.resourcePath + "." + selector;
+	let imagePath = pathInfo.componentPath + "." + selector;
 
 	req.session.resolve(imagePath).then(function(imageResource) {
 		let deferred = Q.defer();

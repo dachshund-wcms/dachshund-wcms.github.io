@@ -14,16 +14,18 @@ A resource has always a parent resource and may have multiple child resources. F
 The abstract class [Resource](Resource.html) and documents the members and the methods to access the resource information. 
 
 ## REST API
-Each resource can be referenced through it's path in the hierarchy. The access takes place by stating the resource path, which is usually a sub path of _/content_, directly behind the URL. To render the content, the representation of the content is defined within the extension. Furthermore one or multiple selectors can be defined to get different views. 
+Each resource can be referenced through it's path in the hierarchy. The access takes place by stating the resource path, which is usually a subpath of _/content_, directly behind the URL. To render the content, the representation of the content is stated in the extension. To get more flexibility on rendering differend kind of views one or multiple dot separated selectors can be defined between the resource path and the extension. 
 
 ![Rest API](http://dachshund-wcms.github.io/tutorials/rest-api.svg)
 
 The class [RequestPathInfo](RequestPathInfo.html) documents the members and methods to access the information passed with the request.
 
 ## Component Handling
-To build the view of a resource is requires a component resource to process the content resource data and provide the rendered information in the way they were requested. To do this the content 
+To render a resource it requires a component which is able to generate the requested view. The component is referenced trough the property _componentPath_ in the requested resource. During a request the content resource is loaded, the property _componentPath_ is resolved to the component and both are processed to send the requested view in the response. Within the component Javascript or Jazz Templates can be defined to build the view. To utilize the development process components can be inherited and build upon each other.
 
-## Folder Structure
+![Rest API](http://dachshund-wcms.github.io/tutorials/component-handling.svg)
+
+## Application Server Structure
 - __/apps__ _(system as well as custom application code)_
 - __/content__ _(content for each site and their sub pages)_
 - __/config__ _(application configuration)_
@@ -40,12 +42,12 @@ To build the view of a resource is requires a component resource to process the 
 ## Setup
 
 ### Step 1 - Clone Dachshund from GitHub
-Use your UI client and clone the repository _https://github.com/sbrinkmann/dachshund_ change to the flag version 2.0 or use a command line client.
+Use your UI client and clone the repository _[https://github.com/dachshund-wcms/core](https://github.com/dachshund-wcms/core)_ change to the flag version 2.0 or use a command line client.
 
 > cd basepath/to/clone/dachshund
-> git clone https://github.com/sbrinkmann/dachshund
+> git clone [https://github.com/dachshund-wcms/core](https://github.com/dachshund-wcms/core) dachshund
 > cd dachshund
-> git checkout 2.0 
+> git checkout 2.0
 
 ### Step 2 - Finish installation
 Open a command line window and change to the dachshund folder. There you have to download the dependencies with node package manager as they're defined in the _package.json_.
@@ -54,7 +56,7 @@ Open a command line window and change to the dachshund folder. There you have to
 > npm install
 
 ## Startup
-Dachshund provides two methods to be started as normal or as debug application. The difference is that with one method its possible to use remote debugging. The other one starts just the application and redirects the log output. Into 
+Dachshund provides two methods to be started as normal or as debug application from the shell. The difference is that with one method its possible to use remote debugging like [node-inspector](https://github.com/node-inspector/node-inspector). The other one starts just the application and redirects the log output into a log file.
 
 ## Version History
 - __2.0__ - First publicly available version. It is contains the core of _Dachshund_ and all functionality to build applications or rich frontend on top of it.
@@ -62,9 +64,10 @@ Dachshund provides two methods to be started as normal or as debug application. 
   - Resource Resolving and Managing
   - Component Handling
   - Basic Authentication and Authorization
-  - Central configuration framework
+  - Central [configuration framework](https://www.npmjs.com/package/config)
   - Render HTML templates with [Jazz](https://github.com/shinetech/jazz) templating engine
-  - Render CSS templates with Less
+  - Render CSS templates with [Less](https://www.npmjs.com/package/less)
+  - Multilingual Support with [i18n](https://www.npmjs.com/package/i18n)
 - __1.0__ - Was the first implementation which was a proof of concept and used only for internal implementations, it provided the same functionality as the first published version 2.0 but wasn't tested or documented in any kind
 
 ## Wishlist
