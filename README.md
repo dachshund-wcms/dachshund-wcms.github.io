@@ -25,6 +25,23 @@ To render a resource it requires a component which is able to generate the reque
 
 ![Rest API](http://dachshund-wcms.github.io/tutorials/component-handling.svg)
 
+## Component Script Handler
+To lookup the script which handles the request the URL part behind the first dot is evaluated. This part states the optional selector(s) and the the extension. Within the component the available files are filtered to build a best match between requested rendition and available script files. When no matching script can be found but inheritance is used, the lookup for a matching script is extended to the super component.
+
+The following parameter are matched:
+- __Selector(s)__ within the URI the HTTP request (see REST API)
+- __Extension__ of the URI in the HTTP request (see REST API)
+- __Method__ used in the HTTP request
+
+__Best to worst match:__
+- __&lt;selector(s)>.&lt;extension>.&lt;scriptExtension>__ (e.g. detailView.html.jazz)
+- __&lt;selector(s)>.&lt;scriptExtension>__ (e.g. detailView.jazz)
+- __&lt;extension>.&lt;scriptExtension>__ (e.g. html.jazz)
+- __&lt;method>.&lt;scriptExtension>__ (e.g. GET.jazz)
+- __&lt;componentName>.&lt;scriptExtension>__ (e.g. homepage.jazz)
+
+The filtering is applied to the file name, while the _script extension_ states how the script has to be processed like _*.js_ for javascript files or _*.jazz_ for html templates.
+
 ## Application Server Structure
 - __/apps__ _(system as well as custom application code)_
 - __/content__ _(content for each site and their sub pages)_

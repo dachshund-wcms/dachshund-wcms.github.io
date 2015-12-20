@@ -101,6 +101,22 @@
 <p>The class <a href="RequestPathInfo.html">RequestPathInfo</a> documents the members and methods to access the information passed with the request.</p>
 <h2>Component Handling</h2><p>To render a resource it requires a component which is able to generate the requested view. The component is referenced trough the property <em>componentPath</em> in the requested resource. During a request the content resource is loaded, the property <em>componentPath</em> is resolved to the component and both are processed to send the requested view in the response. Within the component Javascript or Jazz Templates can be defined to build the view. To utilize the development process components can be inherited and build upon each other.</p>
 <p><img src="http://dachshund-wcms.github.io/tutorials/component-handling.svg" alt="Rest API"></p>
+<h2>Component Script Handler</h2><p>To lookup the script which handles the request the URL part behind the first dot is evaluated. This part states the optional selector(s) and the the extension. Within the component the available files are filtered to build a best match between requested rendition and available script files. When no matching script can be found but inheritance is used, the lookup for a matching script is extended to the super component.</p>
+<p>The following parameter are matched:</p>
+<ul>
+<li><strong>Selector(s)</strong> within the URI the HTTP request (see REST API)</li>
+<li><strong>Extension</strong> of the URI in the HTTP request (see REST API)</li>
+<li><strong>Method</strong> used in the HTTP request</li>
+</ul>
+<p><strong>Best to worst match:</strong></p>
+<ul>
+<li><strong>&lt;selector(s)&gt;.&lt;extension&gt;.&lt;scriptExtension&gt;</strong> (e.g. detailView.html.jazz)</li>
+<li><strong>&lt;selector(s)&gt;.&lt;scriptExtension&gt;</strong> (e.g. detailView.jazz)</li>
+<li><strong>&lt;extension&gt;.&lt;scriptExtension&gt;</strong> (e.g. html.jazz)</li>
+<li><strong>&lt;method&gt;.&lt;scriptExtension&gt;</strong> (e.g. GET.jazz)</li>
+<li><strong>&lt;componentName&gt;.&lt;scriptExtension&gt;</strong> (e.g. homepage.jazz)</li>
+</ul>
+<p>The filtering is applied to the file name, while the <em>script extension</em> states how the script has to be processed like <em>*.js</em> for javascript files or <em>*.jazz</em> for html templates.</p>
 <h2>Application Server Structure</h2><ul>
 <li><strong>/apps</strong> <em>(system as well as custom application code)</em></li>
 <li><strong>/content</strong> <em>(content for each site and their sub pages)</em></li>
