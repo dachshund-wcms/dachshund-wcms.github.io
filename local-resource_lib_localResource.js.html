@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Dachshund Source: local-resource/lib/localResource.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cosmo.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">Dachshund</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler.html">component-handler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-3">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: local-resource/lib/localResource.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript linenums">'use strict';
+
+const Resource = require('resource');
+const ResourceTypes = require('resource-types');
+const fs = require('fs');
+const assert = require('assert');
+const nodeProperties = require('./nodeProperties.js');
+const nodeAuthorization = require("./nodeAuthorization.js");
+const Q = require('q');
+const repositoryManager = require('repository-manager');
+
+/**
+ * The local resource represents a resource which is held in the local file systen. The physical element of a resource
+ * is a folder in the file system. The files '.properties.json' and 'auth.json' contain the properties and authorization
+ * information of the resource. It provides access to the child resources through the held sub-folders. The parent
+ * resource is the parent folder. The files in this folders can be access and modified as well.
+ * @class
+ * @extends Resource
+ */
+class LocalResource extends Resource {
+
+	/**
+	 * @inheritDoc
+	 */
+	getFiles(includeHiddenFiles) {
+		var deferred = Q.defer();
+		if (includeHiddenFiles == undefined)
+		{
+			includeHiddenFiles == false;
+		}
+
+		var resourceFiles = this._resourceFiles;
+
+		if (resourceFiles == null &amp;&amp; this.type == ResourceTypes.RESOURCE)
+		{
+			resourceFiles = [];
+			var path = this.path;
+			fs.readdirSync("." + path).forEach(function(file) {
+				if (fs.statSync("." + path + "/" + file).isFile() &amp;&amp; (includeHiddenFiles || !file.startsWith(".")))
+				{
+					resourceFiles.push(file);
+				}
+			});
+			this._resourceFiles = resourceFiles;
+		}
+
+		deferred.resolve(resourceFiles);
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	fileExists(filename) {
+		var deferred = Q.defer();
+
+		const includeHiddenFiles = true;
+		this.getFiles(includeHiddenFiles).then(function(files) {
+			deferred.resolve(files.indexOf(filename) != -1);
+		}).fail(deferred.reject);
+
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	deleteFile(filename) {
+		var self = this;
+		var deferred = Q.defer();
+
+		this.fileExists(filename).then(function(fileExists) {
+			if (fileExists)
+			{
+				var filePath = "." + self.path + "/" + filename;
+				Q.nfcall(fs.unlink, filePath).then(function() {
+					self._resourceFiles = null;
+					deferred.resolve();
+				}).fail(deferred.reject);
+			}
+			else
+			{
+				deferred.reject(new Error("File [" + filename + "] doesn't exist."));
+			}
+		}).fail(deferred.reject);
+
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	deleteAllFiles(includeHiddenFiles) {
+		var self = this;
+		var deferred = Q.defer();
+
+		var includeHidden = includeHiddenFiles || false;
+
+		this.getFiles(includeHidden).then(function(fileList) {
+
+			var deleteFilesPromises = [];
+			fileList.forEach(function(fileName) {
+				deleteFilesPromises.push(self.deleteFile(fileName));
+			});
+
+			Q.allSettled(deleteFilesPromises).then(function() {
+				deferred.resolve(self);
+			}).fail(deferred.reject);
+
+		}).fail(deferred.reject);
+
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	addFile(sourceReadStream, filename) {
+		var deferred = Q.defer();
+
+		var destinationPath = "." + this.path + "/" + filename;
+		var destinationFile = fs.createWriteStream(destinationPath);
+		destinationFile.on('finish', deferred.resolve).on('error', deferred.reject);
+		sourceReadStream.pipe(destinationFile);
+
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	loadScript(scriptName) {
+		var deferred = Q.defer();
+		var self = this;
+
+		this.fileExists(scriptName).then(function(fileExists) {
+			if (!fileExists)
+			{
+				deferred.reject(new Error("Script '" + self.path + "/" + scriptName + "' doesn't exist."));
+			}
+			else
+			{
+				try
+				{
+					var resolvedScript = require(process.cwd() + self.path + "/" + scriptName);
+					deferred.resolve(resolvedScript);
+				} catch (err)
+				{
+					deferred.reject(err);
+				}
+			}
+		}).fail(deferred.reject);
+
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	getChilds() {
+		var deferred = Q.defer();
+		var resourceChilds = this._resourceChilds;
+
+		if (resourceChilds == null &amp;&amp; this.type == ResourceTypes.RESOURCE)
+		{
+			resourceChilds = [];
+			var path = this.path;
+			fs.readdirSync("." + path).forEach(function(file) {
+				if (fs.statSync("." + path + "/" + file).isDirectory() &amp;&amp; !file.startsWith("."))
+				{
+					resourceChilds.push(file);
+				}
+			});
+			this._resourceChilds = resourceChilds;
+		}
+
+		deferred.resolve(resourceChilds);
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	getChildResources() {
+		var deferred = Q.defer();
+		var self = this;
+		this.getChilds().then(function(childNames) {
+
+			if (childNames.length == 0)
+			{
+				deferred.resolve([]);
+				if (cb instanceof Function)
+				{
+					cb([]);
+				}
+			}
+
+			var childResourcePromises = [];
+			childNames.forEach(function(childName) {
+				var childResourcePath = self.path + "/" + childName;
+				childResourcePromises.push(repositoryManager.resolve(childResourcePath));
+			});
+			Q.all(childResourcePromises).then(function(childResources) {
+				deferred.resolve(childResources);
+			}).fail(deferred.reject)
+		});
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	getParentResource() {
+		var deferred = Q.defer();
+		var parentPath = this.path.lastSubstringBefore("/");
+
+		if (parentPath.length > 0)
+		{
+			repositoryManager.resolve(parentPath).then(function(parentResource) {
+				deferred.resolve(parentResource);
+			}).fail(deferred.reject);
+		}
+		else
+		{
+			deferred.resolve(null);
+		}
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	getAbsoluteParentResource(depth) {
+		assert(!isNaN(depth), "It is expected that the paramater [depth] is a number.");
+		assert(depth >= 0, "It is expected that the parameter [depth] is greater or equal than zero.");
+
+		var deferred = Q.defer();
+
+		depth += 1;
+		if (this.depth &lt; depth)
+		{
+			deferred.reject(new Error("The request depth [" + depth + "] can't be resolved from [" + this.path + "]"));
+		}
+		else if (this.depth == depth)
+		{
+			deferred.resolve(this);
+		}
+		else
+		{
+			var sourcePathFragments = this.path.split("/");
+			var destinationPathFragments = sourcePathFragments.slice(0, depth);
+			var destinationPath = destinationPathFragments.join("/");
+			repositoryManager.resolve(destinationPath).then(deferred.resolve).fail(deferred.reject);
+		}
+
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	getHiddenResourceChilds() {
+		var deferred = Q.defer();
+		var resourceChilds = this._resourceChilds;
+
+		if (resourceChilds == null &amp;&amp; this.type == resourceTypes.RESOURCE)
+		{
+			resourceChilds = [];
+			var path = this.path;
+			fs.readdirSync("." + path).forEach(function(file) {
+				if (fs.statSync("." + path + "/" + file).isDirectory() &amp;&amp; file.startsWith("."))
+				{
+					resourceChilds.push(file);
+				}
+			});
+			this._resourceChilds = resourceChilds;
+		}
+		deferred.resolve(resourceChilds);
+
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	loadProperties() {
+		var deferred = Q.defer();
+
+		this.properties = nodeProperties.load(this.path);
+
+		deferred.resolve(this);
+
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	saveProperties() {
+		var self = this;
+		var deferred = Q.defer();
+
+		this.properties.id = this.properties.id || this.id;
+		nodeProperties.save(this.path, this.properties);
+		this.properties.id = undefined;
+		deferred.resolve(self);
+
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	loadAuthorization() {
+		var deferred = Q.defer();
+
+		this.auth = nodeAuthorization.load(this.path);
+		deferred.resolve(this);
+
+		return deferred.promise;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	saveAuthorization() {
+		var deferred = Q.defer();
+		nodeAuthorization.save(this.path, this.auth);
+
+		deferred.resolve(this);
+
+		return deferred.promise;
+	}
+
+}
+
+module.exports = LocalResource;</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
+	on Sun Dec 20th 2015 using the <a
+	href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>

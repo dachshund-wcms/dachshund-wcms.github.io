@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Dachshund Source: file-script-handler/lib/fileScriptHandler/imageSizeHandler.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cosmo.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">Dachshund</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler.html">component-handler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-3">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: file-script-handler/lib/fileScriptHandler/imageSizeHandler.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript linenums">/** @module file-script-handler/imageSizeHandler */
+'use strict';
+
+const fs = require('fs');
+const path = require("path");
+const im = require('imagemagick');
+const Q = require('q');
+const DachshundError = require('dachshund-error');
+const resourceTypes = require('resource-types');
+const mime = require('mime');
+const temp = require('temp').track();
+const sha256 = require('sha256');
+const repositoryManager = require('repository-manager');
+const stringUtils = require('string-utils');
+const imageSizeHandler = exports;
+const nodeStatic = require('node-static');
+const fileServer = new nodeStatic.Server({ cache: false });
+const assert = require('assert');
+
+imageSizeHandler.test = function(pathInfo) {
+	let extension = pathInfo.extension.toLowerCase();
+	let correctExtension = extension == "jpg" || extension == "jpeg" || extension == "png" || extension == "gif";
+	let selectorIsDefined = stringUtils.isNotEmpty(pathInfo.selector);
+	return selectorIsDefined &amp;&amp; correctExtension;
+};
+
+/**
+ * Resolves the image thumbnail or creates it, for the case that it doesn't exist
+ * @param req
+ * @param resp
+ * @param pathInfo
+ */
+imageSizeHandler.handle = function(req, resp, pathInfo) {
+	try
+	{
+		let thumbProperties = new ImageProperties(pathInfo);
+	} catch (err)
+	{
+		resp.writeHead(500, {"content-type": "text/plain; charset=utf-8"});
+		resp.write(err.toString());
+		resp.end();
+		return;
+	}
+	req.session.resolve(thumbProperties.sourceFilePath).then(function(imageParentResource) {
+		let deferred = Q.defer();
+
+		//Step 1: Check if the resource exists and access is allowed
+		if (!resourceTypes.isResource(imageParentResource))
+		{
+			deferred.reject(new DachshundError("404 Resource not found", 404));
+		}
+		else
+		{
+			//Step 2: Check if source image exists
+			imageParentResource.fileExists(thumbProperties.sourceFileName).then(function(sourceFileExists) {
+				if (!sourceFileExists)
+				{
+					deferred.reject(new DachshundError("404 Resource not found", 404));
+				}
+				else
+				{
+					deferred.resolve(imageParentResource);
+				}
+			});
+		}
+		return deferred.promise;
+	}).then(function(imageParentResource) {
+		let deferred = Q.defer();
+
+		//Step 3: Check if the thumb image is already created
+		imageParentResource.fileExists(thumbProperties.thumbFileName).then(function(thumbFileExists) {
+			if (thumbFileExists)
+			{
+				//Step 4a: Serve the image when it exists
+				deferred.resolve(thumbProperties);
+			}
+			else
+			{
+				//Step 4b: Create the thumbnail and serve it when it's created
+				createThumbnail(thumbProperties).then(function() {
+					deferred.resolve(thumbProperties);
+				}).fail(deferred.reject);
+			}
+		});
+
+		return deferred.promise;
+	}).then(function(thumbProperties) {
+		let thumbImagePath = thumbProperties.sourceFilePath + "/" + thumbProperties.thumbFileName;
+		req.session.resolve(thumbImagePath).then(function(thumbFileResource) {
+			let thumbImageFilePath = "." + (thumbFileResource.source || thumbImagePath);
+			let mimetype = mime.lookup(pathInfo.extension);
+			fileServer.serveFile(thumbImageFilePath, 200, {"content-type": mimetype}, req, resp);
+		});
+	}).fail(function(err) {
+		resp.writeHead(err.id || 500, {"Content-Type": "text/plain; charset=utf-8"});
+		resp.write(err.toString());
+		resp.end();
+	});
+};
+
+/**
+ * Creates the thumbnail and stores it at the parent resource where the original image belongs to
+ * @param {ImageProperties} thumbProperties Information about the thumbnail process
+ * @returns {*}
+ */
+const createThumbnail = function(thumbProperties) {
+	let deferred = Q.defer();
+
+	let completeSourcePath = thumbProperties.sourceFilePath + "/" + thumbProperties.sourceFileName;
+	let sourceFilePath = "";
+
+	//Step 1: Access the source image
+	repositoryManager.resolve(completeSourcePath).then(function(sourceImageResource) {
+		sourceFilePath = sourceImageResource.source || completeSourcePath;
+
+		//Step 2: Read the the image exif information
+		return Q.nfcall(im.readMetadata, process.cwd() + sourceFilePath);
+	}).then(function(metadata) {
+		let deferred = Q.defer();
+
+		//Step 3a: Set the size depending on the orientation of the image
+		let size = thumbProperties.getSizeVertical();
+		if (metadata.exif != undefined &amp;&amp; metadata.exif.orientation != undefined)
+		{
+			// All orientations great as 4 are a pictures is
+			// horizontal instead of vertical
+			// Details are here documented:
+			// http://sylvana.net/jpegcrop/exif_orientation.html
+			if (metadata.exif.orientation > 4)
+			{
+				size = thumbProperties.getSizeHorizontal();
+			}
+		}
+
+		//Step 3b: If the minimum size instead of the maximum is requested, the requested size has to be prefixed for image magic
+		if (thumbProperties.type == "min")
+		{
+			size += "^";
+		}
+
+		//Step 4: Create a temporary file where the image is written to, until it will be added to the resource
+		Q.nfcall(temp.open, sha256(completeSourcePath)).then(function(tempInfo) {
+			//Step 5: Create the image thumbnail and write it into the temporary file
+			Q.nfcall(im.convert, [ process.cwd() + sourceFilePath, '-resize', size, tempInfo.path]).then(function() {
+				deferred.resolve(tempInfo.path);
+			}).fail(deferred.reject);
+		}).fail(deferred.reject);
+
+		return deferred.promise;
+	}).then(function(thumbnailPath) {
+		let deferred = Q.defer();
+		//Step 6: Switch the orientation of the image, if it was taken vertical
+		Q.nfcall(im.convert, [ '-auto-orient', thumbnailPath, thumbnailPath]).then(function() {
+			deferred.resolve(thumbnailPath);
+		}).fail(deferred.reject);
+		return deferred.promise;
+	}).then(function(thumbnailPath) {
+		let deferred = Q.defer();
+		//Step 7: Resolve the resource where the image will be attched to
+		repositoryManager.resolve(thumbProperties.sourceFilePath).then(function(imageParentResource) {
+			//Step 8: Attach thumbnail to the parent resource of the source image
+			let thumbnailReadStream = fs.createReadStream(thumbnailPath);
+			imageParentResource.addFile(thumbnailReadStream, thumbProperties.thumbFileName).then(deferred.resolve).fail(deferred.reject);
+		}).fail(deferred.reject);
+		return deferred.promise;
+	}).then(deferred.resolve).fail(deferred.reject);
+
+	return deferred.promise;
+};
+
+/**
+ * Resolves the necessary parameters to create the image thumbnail
+ *
+ * @param pathInfo RequestPathInfo object resolved from the http request
+ */
+const ImageProperties = function(pathInfo) {
+	assert(stringUtils.isNotEmpty(pathInfo.selector), "Selector isn't defined");
+	let selectorParts = pathInfo.selector.split(".");
+	if (selectorParts.length >= 2)
+	{
+		if (selectorParts[selectorParts.length - 2] == "min" || selectorParts[selectorParts.length - 2] == "max")
+		{
+			this.type = selectorParts[selectorParts.length - 2];
+			selectorParts.splice(selectorParts.length - 2, 1);
+		}
+		this.size = selectorParts[selectorParts.length - 1];
+		selectorParts.splice(selectorParts.length - 1, 1);
+	}
+	else
+	{
+		this.size = selectorParts[0];
+		selectorParts = [];
+	}
+	assert(stringUtils.isNotEmpty(this.size), "Size isn't defined within request selector.");
+	let sizeParts = this.size.split("x");
+	assert.equal(sizeParts.length, 2, "Size selector is malformed.");
+
+	this.width = parseInt(sizeParts[0]);
+	assert(!isNaN(this.width), "Defined width isn't a number");
+
+	this.height = parseInt(sizeParts[1]);
+	assert(!isNaN(this.height), "Defined height isn't a number");
+
+	let completeSourcePath = pathInfo.resourcePath + "." + pathInfo.extension;
+	if (selectorParts.length > 0)
+	{
+		completeSourcePath = pathInfo.resourcePath + "." + selectorParts.join(".") + "." + pathInfo.extension;
+	}
+	this.sourceFilePath = completeSourcePath.lastSubstringBefore("/");
+	this.sourceFileName = completeSourcePath.lastSubstringAfter("/");
+	this.thumbFileName = "." + this.sourceFileName.lastSubstringBefore(".") + "." + this.type + "." + this.size + "." + pathInfo.extension
+};
+
+ImageProperties.prototype.type = "max";
+ImageProperties.prototype.size = "";
+ImageProperties.prototype.height = 0;
+ImageProperties.prototype.width = 0;
+ImageProperties.prototype.sourceFilePath = "";
+ImageProperties.prototype.sourceFileName = "";
+ImageProperties.prototype.thumbFileName = "";
+
+ImageProperties.prototype.getSizeVertical = function() {
+	return this.width + "x" + this.height;
+};
+
+ImageProperties.prototype.getSizeHorizontal = function() {
+	return this.height + "x" + this.width;
+};</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
+	on Sun Dec 20th 2015 using the <a
+	href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>

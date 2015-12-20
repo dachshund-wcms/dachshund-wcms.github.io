@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Dachshund Source: resource-types/lib/resourceTypes.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cosmo.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">Dachshund</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler.html">component-handler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-3">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: resource-types/lib/resourceTypes.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript linenums">/**
+ * is an ENUM and represents the different resource types
+ */
+class ResourceTypes {
+
+	constructor(name)
+	{
+		this.name = name;
+		Object.freeze(this);
+	}
+
+	/**
+	 * Compare two {@link ResourceTypes}
+	 * @param otherResourceType other resource type to be compared
+	 * @returns {boolean} true: resource types are the same, false: otherwise
+	 */
+	equals(otherResourceType) {
+		return otherResourceType instanceof ResourceTypes &amp;&amp; otherResourceType.name == this.name;
+	}
+
+	/**
+	 * Checks if the reference is {@link ResourceTypes.NOT_FOUND}
+	 * @returns {boolean} true - when the {@link ResourceTypes} is {@link ResourceTypes.NOT_FOUND}
+	 */
+	isNotFound() {
+		return this.name === ResourceTypes.NOT_FOUND.name;
+	}
+
+	/**
+	 * Static method to check if a resource type is from type file
+	 * @param {ResourceTypes} resource - to be checked
+	 * @returns {boolean} true: when the {@link ResourceTypes} is {@link ResourceTypes.FILE}
+	 */
+	static isFile(resource) {
+		return resource instanceof Object &amp;&amp; ResourceTypes.FILE.name === resource.type;
+	};
+
+	/**
+	 * Static method to check if a resource type is from type resource
+	 * @param {ResourceTypes} resource - to be checked
+	 * @returns {boolean} true: when the {@link ResourceTypes} is {@link ResourceTypes.RESOURCE}
+	 */
+	static isResource(resource) {
+		return resource instanceof Object &amp;&amp; ResourceTypes.RESOURCE.name === resource.type;
+	};
+}
+
+/**
+ * Resource is a file
+ * @type {ResourceTypes}
+ */
+ResourceTypes.FILE = new ResourceTypes('file');
+
+/**
+ * Resource is a resource
+ * @type {ResourceTypes}
+ */
+ResourceTypes.RESOURCE = new ResourceTypes('resource');
+
+/**
+ * Resource couldn't be resolved because it cannot be found
+ * @type {ResourceTypes}
+ */
+ResourceTypes.NOT_FOUND = new ResourceTypes('not-found');
+
+//Freeze the object to prevent that it get's modified somewhere else
+Object.freeze(ResourceTypes);
+
+module.exports = ResourceTypes;</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
+	on Sun Dec 20th 2015 using the <a
+	href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>

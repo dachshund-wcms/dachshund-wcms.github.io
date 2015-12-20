@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Dachshund Index</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cosmo.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">Dachshund</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler.html">component-handler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-3">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-8">
+	
+		<div id="main">
+			
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+
+
+
+
+
+    <section class="readme-section">
+        <article><h1>Dachshund WCMS</h1><p>Dachshund is a fast and lightweight WCMS. It's goal is to provide a content centric WCMS with a transparent and structured REST API to access and modify its data. It is tailored to support state of the art web application development with HTML5, CSS3 and Javascript.</p>
+<h2>Unstructured Content / Hierarchical Relationship</h2><p>Dachshund comes bundled with a content repository and the API to access it. So there is no need for an additional database. Everything you need is your local file system. As the web is unstructured our content is unstructured as well. There is no need of database design. As web pages and their content is hierarchical structured, the relationship between data elements - we call them <em>resources</em> - is defined in the same same way.</p>
+<p><img src="tutorials/relationship.svg" alt="Content Hierarchy"></p>
+<h2>Resource</h2><p>A resource has always a parent resource and may have multiple child resources. Furthermore, each resource has properties which represent the specific information of the resource.</p>
+<p><img src="tutorials/resource.svg" alt="Rest API"></p>
+<p>The abstract class <a href="Resource.html">Resource</a> and documents the members and the methods to access the resource information. </p>
+<h2>REST API</h2><p>Each resource can be referenced through it's path in the hierarchy. The access takes place by stating the resource path, which is usually a sub path of <em>/content</em>, directly behind the URL. To render the content, the representation of the content is defined within the extension. Furthermore one or multiple selectors can be defined to get different views. </p>
+<p><img src="tutorials/rest-api.svg" alt="Rest API"></p>
+<p>The class <a href="RequestPathInfo.html">RequestPathInfo</a> documents the members and methods to access the information passed with the request.</p>
+<h2>Component Handling</h2><p>To build the view of a resource is requires a component resource to process the content resource data and provide the rendered information in the way they were requested. To do this the content </p>
+<h2>Folder Structure</h2><ul>
+<li><strong>/apps</strong> <em>(system as well as custom application code)</em></li>
+<li><strong>/content</strong> <em>(content for each site and their sub pages)</em></li>
+<li><strong>/config</strong> <em>(application configuration)</em></li>
+<li><strong>/home/users</strong> <em>(system users)</em></li>
+<li><strong>/home/groups</strong> <em>(system usergroups)</em></li>
+<li><strong>/libs</strong> <em>(Client side libraries for javascript, stylesheet frameworks or images)</em></li>
+</ul>
+<h2>System Requirements</h2><ul>
+<li>Mac OS X or Linux (Theoretical Windows)</li>
+<li>Node.js including npm (Version 5.2 and greater)</li>
+<li>Internet access to clone Dachshund from git and to download 3rd party npm modules</li>
+<li>GIT Version Control System (command line client or some UI client)</li>
+</ul>
+<h2>Setup</h2><h3>Step 1 - Clone Dachshund from GitHub</h3><p>Use your UI client and clone the repository <em>https://github.com/sbrinkmann/dachshund</em> change to the flag version 2.0 or use a command line client.</p>
+<blockquote>
+<p>cd basepath/to/clone/dachshund<br>git clone https://github.com/sbrinkmann/dachshund<br>cd dachshund<br>git checkout 2.0 </p>
+</blockquote>
+<h3>Step 2 - Finish installation</h3><p>Open a command line window and change to the dachshund folder. There you have to download the dependencies with node package manager as they're defined in the <em>package.json</em>.</p>
+<blockquote>
+<p>cd path/to/dachshund<br>npm install</p>
+</blockquote>
+<h2>Startup</h2><p>Dachshund provides two methods to be started as normal or as debug application. The difference is that with one method its possible to use remote debugging. The other one starts just the application and redirects the log output. Into </p>
+<h2>Version History</h2><ul>
+<li><strong>2.0</strong> - First publicly available version. It is contains the core of <em>Dachshund</em> and all functionality to build applications or rich frontend on top of it.<ul>
+<li>REST API</li>
+<li>Resource Resolving and Managing</li>
+<li>Component Handling</li>
+<li>Basic Authentication and Authorization</li>
+<li>Central configuration framework</li>
+<li>Render HTML templates with <a href="https://github.com/shinetech/jazz">Jazz</a> templating engine</li>
+<li>Render CSS templates with Less</li>
+</ul>
+</li>
+<li><strong>1.0</strong> - Was the first implementation which was a proof of concept and used only for internal implementations, it provided the same functionality as the first published version 2.0 but wasn't tested or documented in any kind</li>
+</ul>
+<h2>Wishlist</h2><p>Even when Dachshund reached the version 2.0 the current implementation provide primarily the core functionality for a WCMS. </p>
+<ul>
+<li>Authoring and administration web HTML5 frontend</li>
+<li>Functionality to replicate content between dachshund instances</li>
+<li>Functionality to use Dachshund with SAML and/or LDAP</li>
+<li>Possibility to use databases like MongoDB or CouchDB</li>
+</ul></article>
+    </section>
+
+
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+		<div class="col-md-3">
+			<div id="toc" class="col-md-3 hidden-xs hidden-sm hidden-md"></div>
+		</div>
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
+	on Sun Dec 20th 2015 using the <a
+	href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>

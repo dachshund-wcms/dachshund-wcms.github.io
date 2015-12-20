@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Dachshund Source: component-handler/lib/componentHandler.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cosmo.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">Dachshund</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler.html">component-handler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-3">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: component-handler/lib/componentHandler.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript linenums">/** @module component-handler */
+'use strict';
+
+const Q = require('q');
+const componentHandler = exports;
+const logger = require('dachshund-logger').getLogger(__filename);
+
+const prepareScriptHandler = require('./prepareScriptHandler.js');
+
+/**
+ *
+ * @param component {Component} The component to be handled with the enclosed request information
+ * @returns {promise}
+ */
+componentHandler.handle = function(component) {
+	let deferred = Q.defer();
+
+	prepareScriptHandler.resolveAndHandle(component).then(function() {
+		return componentHandler.getScriptToHandle(component);
+	}).then(function(scriptPath) {
+		logger.trace("Script [" + scriptPath + "] found for component [" + component.componentResource.path + "]" + getPathinfoString(component));
+		component.executeScript(scriptPath).then(deferred.resolve).fail(deferred.reject);
+	}).fail(function() {
+		componentHandler.getScriptToHandle(component, component.componentResource.name).then(function(scriptPath) {
+			logger.trace("Script [" + scriptPath + "] found for component [" + component.componentResource.path + "] with name [" + component.componentResource.name + "]" + getPathinfoString(component));
+			component.executeScript(scriptPath).then(deferred.resolve).fail(deferred.reject);
+		}).fail(function() {
+			component.getDefaultScript().then(function(scriptPath) {
+				logger.trace("Default script [" + scriptPath + "] found for component [" + component.componentResource.path + "]" + getPathinfoString(component));
+				component.executeScript(scriptPath).then(deferred.resolve).fail(deferred.reject);
+			}).fail(function() {
+				deferred.reject(new Error("No matching script can be found in this component [" + component.componentResource.path + "]" + getPathinfoString(component)));
+			});
+		})
+	});
+
+	return deferred.promise;
+};
+
+componentHandler.getScriptToHandle = function(component, prefix) {
+	let deferred = Q.defer();
+
+	if (prefix == undefined)
+	{
+		prefix = "";
+	}
+	else
+	{
+		prefix = prefix + ".";
+	}
+
+	resolveScriptByMethodSelectorAndExtension(component, prefix).then(function(scriptPath) {
+		deferred.resolve(scriptPath);
+	}).fail(function() {
+		return resolveScriptBySelector(component, prefix);
+	}).then(function(scriptPath) {
+		deferred.resolve(scriptPath);
+	}).fail(function() {
+		resolverScriptByExtension(component, prefix).then(function(scriptPath) {
+			deferred.resolve(scriptPath);
+		}).fail(function() {
+			resolveScriptByMethodName(component, prefix).then(function(scriptPath) {
+				deferred.resolve(scriptPath);
+			}).fail(function() {
+				deferred.reject(new Error("No script found for component: " + component.componentResource.path));
+			});
+		});
+	});
+
+	return deferred.promise;
+};
+
+const resolveScriptByMethodName = function(component, prefix) {
+	let deferred = Q.defer();
+	let scriptName = prefix + component.pathInfo.method;
+	component.resolveScript(scriptName).then(deferred.resolve).fail(deferred.reject);
+	return deferred.promise;
+};
+
+const resolverScriptByExtension = function(component, prefix) {
+	let deferred = Q.defer();
+	if (component.pathInfo.method == "GET" &amp;&amp; component.pathInfo.selector != null)
+	{
+		let scriptName = prefix + component.pathInfo.extension;
+		component.resolveScript(scriptName).then(deferred.resolve).fail(deferred.reject);
+	}
+	else
+	{
+		deferred.reject();
+	}
+	return deferred.promise;
+};
+
+const resolveScriptBySelector = function(component, prefix) {
+	let deferred = Q.defer();
+	if (component.pathInfo.method == "GET" &amp;&amp; component.pathInfo.selector != null)
+	{
+		let scriptName = prefix + component.pathInfo.selector;
+		component.resolveScript(scriptName).then(deferred.resolve).fail(deferred.reject);
+	}
+	else
+	{
+		deferred.reject();
+	}
+	return deferred.promise;
+};
+
+const resolveScriptByMethodSelectorAndExtension = function(component, prefix) {
+	let deferred = Q.defer();
+	let scriptName = "";
+
+	if (component.pathInfo.method == "GET" &amp;&amp; component.pathInfo.selector == null)
+	{
+		scriptName = prefix + component.pathInfo.extension;
+	}
+	else if (component.pathInfo.method == "GET" &amp;&amp; component.pathInfo.selector != null)
+	{
+		scriptName = prefix + component.pathInfo.selector + "." + component.pathInfo.extension;
+	}
+	else if (component.pathInfo.selector == null)
+	{
+		scriptName = prefix + component.pathInfo.method + "." + component.pathInfo.extension;
+	}
+	else if (component.pathInfo.selector != null)
+	{
+		scriptName = prefix + component.pathInfo.method + "." + component.pathInfo.selector + "." + component.pathInfo.extension;
+	}
+
+	component.resolveScript(scriptName).then(deferred.resolve).fail(deferred.reject);
+	return deferred.promise;
+};
+
+const getPathinfoString = function(component) {
+	return " request method [" + component.pathInfo.method + "] selector [" + component.pathInfo.selector + "] extension [" + component.pathInfo.extension + "]";
+};
+</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
+	on Sun Dec 20th 2015 using the <a
+	href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>
