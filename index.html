@@ -92,12 +92,12 @@
     <section class="readme-section">
         <article><h1>Dachshund WCMS</h1><p>Dachshund is a fast and lightweight WCMS. It's goal is to provide a content centric WCMS with a transparent and structured REST API to access and modify its data. It is tailored to support state of the art web application development with HTML5, CSS3 and Javascript.</p>
 <h2>Unstructured Content / Hierarchical Relationship</h2><p>Dachshund comes bundled with a content repository and the API to access it. So there is no need for an additional database. Everything you need is your local file system. As the web is unstructured our content is unstructured as well. There is no need of database design. As web pages and their content is hierarchical structured, the relationship between data elements - we call them <em>resources</em> - is defined in the same same way.</p>
-<p><img src="tutorials/relationship.svg" alt="Content Hierarchy"></p>
+<p><img src="http://dachshund-wcms.github.io/tutorials/relationship.svg" alt="Content Hierarchy"></p>
 <h2>Resource</h2><p>A resource has always a parent resource and may have multiple child resources. Furthermore, each resource has properties which represent the specific information of the resource.</p>
-<p><img src="tutorials/resource.svg" alt="Rest API"></p>
+<p><img src="http://dachshund-wcms.github.io/tutorials/resource.svg" alt="Rest API"></p>
 <p>The abstract class <a href="Resource.html">Resource</a> and documents the members and the methods to access the resource information. </p>
 <h2>REST API</h2><p>Each resource can be referenced through it's path in the hierarchy. The access takes place by stating the resource path, which is usually a sub path of <em>/content</em>, directly behind the URL. To render the content, the representation of the content is defined within the extension. Furthermore one or multiple selectors can be defined to get different views. </p>
-<p><img src="tutorials/rest-api.svg" alt="Rest API"></p>
+<p><img src="http://dachshund-wcms.github.io/tutorials/rest-api.svg" alt="Rest API"></p>
 <p>The class <a href="RequestPathInfo.html">RequestPathInfo</a> documents the members and methods to access the information passed with the request.</p>
 <h2>Component Handling</h2><p>To build the view of a resource is requires a component resource to process the content resource data and provide the rendered information in the way they were requested. To do this the content </p>
 <h2>Folder Structure</h2><ul>

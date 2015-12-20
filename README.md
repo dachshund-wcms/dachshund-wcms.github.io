@@ -4,19 +4,19 @@ Dachshund is a fast and lightweight WCMS. It's goal is to provide a content cent
 ## Unstructured Content / Hierarchical Relationship
 Dachshund comes bundled with a content repository and the API to access it. So there is no need for an additional database. Everything you need is your local file system. As the web is unstructured our content is unstructured as well. There is no need of database design. As web pages and their content is hierarchical structured, the relationship between data elements - we call them _resources_ - is defined in the same same way.
 
-![Content Hierarchy](tutorials/relationship.svg)
+![Content Hierarchy](http://dachshund-wcms.github.io/tutorials/relationship.svg)
 
 ## Resource
 A resource has always a parent resource and may have multiple child resources. Furthermore, each resource has properties which represent the specific information of the resource.
 
-![Rest API](tutorials/resource.svg)
+![Rest API](http://dachshund-wcms.github.io/tutorials/resource.svg)
 
 The abstract class [Resource](Resource.html) and documents the members and the methods to access the resource information. 
 
 ## REST API
 Each resource can be referenced through it's path in the hierarchy. The access takes place by stating the resource path, which is usually a sub path of _/content_, directly behind the URL. To render the content, the representation of the content is defined within the extension. Furthermore one or multiple selectors can be defined to get different views. 
 
-![Rest API](tutorials/rest-api.svg)
+![Rest API](http://dachshund-wcms.github.io/tutorials/rest-api.svg)
 
 The class [RequestPathInfo](RequestPathInfo.html) documents the members and methods to access the information passed with the request.
 
