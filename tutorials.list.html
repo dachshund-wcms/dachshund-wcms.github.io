@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Dachshund Source: file-script-handler/lib/fileScriptHandler/imageDimensionsHandler.js</title>
+	<title>Dachshund Tutorials</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -71,113 +71,118 @@
 <div class="row">
 
 	
-	<div class="col-md-12">
+	<div class="col-md-8">
 	
 		<div id="main">
 			
 
-		<h1 class="page-title">Source: file-script-handler/lib/fileScriptHandler/imageDimensionsHandler.js</h1>
-    
+	<h1 class="page-title">Tutorials</h1>
 <section>
-    <article>
-        <pre
-            class="sunlight-highlight-javascript linenums">/** @module file-script-handler/imageDimensionsHandler */
-'use strict';
 
-const im = require('imagemagick');
-const imageDimensionsHandler = exports;
-const logger = require('dachshund-logger').getLogger(__filename);
-const repositoryManager = require('repository-manager');
-const Q = require('q');
+<header>
+    
+        <h2>
+        
+        </h2>
+        
+    
+</header>
 
-const extractMetadata = function(metadata)
-{
-	let metadataObject = {
-		type: "",
-		dimensions: "",
-		width: 0,
-		height: 0,
-		sizeInBytes: 0
-	};
-	
-	let metadataParts = metadata.split(" ");
 
-	try {
-		metadataObject.sizeInBytes = parseInt(metadataParts[0].substring(0,metadataParts[0].length - 1));
-		metadataObject.type = metadataParts[1];
-		metadataObject.width = parseInt(metadataParts[2]);
-		metadataObject.height = parseInt(metadataParts[3]);
-		metadataObject.dimensions = metadataObject.width + "x" + metadataObject.height;
-	}catch(ex){
-		logger.error("Error while transforming image metadata: " + ex);
-	}
+<article>
+    <div class="container-overview">
+    
+        
 
-	return metadataObject;
-};
+        
+<dl class="details">
+    
 
-imageDimensionsHandler.test = function(pathInfo)
-{
-	let extension = pathInfo.extension.toLowerCase();
 	
-	if(pathInfo.selector == null)
-	{
-		return false;
-	}
-	
-	let selectorParts = pathInfo.selector.split(".");
-	if(selectorParts.length &lt; 2)
-	{
-		return false;
-	}
-	
-	let secondLastSelector = selectorParts[selectorParts.length - 2].toLowerCase();
-	let lastSelector = selectorParts[selectorParts.length - 1].toLowerCase();
 
-	return lastSelector == "dimensions" &amp;&amp; (secondLastSelector == "png" || secondLastSelector == "gif" || secondLastSelector == "jpg" || secondLastSelector == "jpeg") &amp;&amp; extension == "json";
-};
+	
 
-imageDimensionsHandler.handle = function(req, resp, pathInfo, resource)
-{
-	let selectorParts = pathInfo.selector.split(".");
 	
-	//Remove the "dimensions" from the selector list
-	selectorParts.splice(selectorParts.length - 1, 1);
-	
-	if(selectorParts.length > 2 &amp;&amp; selectorParts[selectorParts.length - 3] == "min" || selectorParts[selectorParts.length - 3] == "max")
-	{
-		selectorParts.splice(selectorParts.length - 3, 1);
-	}
-	
-	if(selectorParts.length > 1 &amp;&amp; selectorParts[selectorParts.length - 2].contains("x"))
-	{
-		selectorParts.splice(selectorParts.length - 2, 1);
-	}
-	let selector = selectorParts.join(".");
-	
-	let naturalImagePath = pathInfo.componentPath + "." + selector;
-	repositoryManager.resolve(naturalImagePath).then(function(resource){
-		let imagePath = naturalImagePath;
-		if(resource.source != undefined)
-		{
-			imagePath = resource.source;
-		}
 
-		return Q.nfcall(im.identify, ["-format", "%b %m %w %h", process.cwd() + imagePath]);
-	}).then(function(metadata){
-		let metadataObject = extractMetadata(metadata);
-		metadataObject.imagePath = naturalImagePath;
-		resp.writeHead(200, {"Content-Type" : "application/json; charset=utf-8"});
-		resp.write(JSON.stringify(metadataObject));
-		resp.end();
-	}).fail(function(err){
-		resp.writeHead(500, {"Content-Type" : "text/plain; charset=utf-8"});
-		resp.write("Error while reading image dimensions " + err);
-		resp.end();
-	});
-};</pre>
-    </article>
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="Component.html">Component</a></dt>
+            <dd></dd>
+        
+            <dt><a href="DachshundError.html">DachshundError</a></dt>
+            <dd></dd>
+        
+            <dt><a href="LocalResource.html">LocalResource</a></dt>
+            <dd></dd>
+        
+            <dt><a href="RepositorySession.html">RepositorySession</a></dt>
+            <dd></dd>
+        
+            <dt><a href="RequestPathInfo.html">RequestPathInfo</a></dt>
+            <dd></dd>
+        
+            <dt><a href="Resource.html">Resource</a></dt>
+            <dd></dd>
+        
+            <dt><a href="ResourceTypes.html">ResourceTypes</a></dt>
+            <dd></dd>
+        </dl>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
 </section>
-
 
 
 
@@ -187,6 +192,10 @@ imageDimensionsHandler.handle = function(req, resp, pathInfo, resource)
 
 	<div class="clearfix"></div>
 
+	
+		<div class="col-md-3">
+			<div id="toc" class="col-md-3 hidden-xs hidden-sm hidden-md"></div>
+		</div>
 	
 
 </div>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Dachshund Tutorial: Development Tutorial</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cosmo.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">Dachshund</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler_componentHandler.html">component-handler/componentHandler</a></li><li><a href="module-component-handler_componentLoader.html">component-handler/componentLoader</a></li><li><a href="module-component-handler_dispatcher.html">component-handler/dispatcher</a></li><li><a href="module-component-handler_prepareScriptHandler.html">component-handler/prepareScriptHandler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RepositorySession.html">RepositorySession</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-Development Tutorial.html">Development Tutorial</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-3">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			<section class="tutorial-section">
+
+<header>
+    
+
+    <h2>Development Tutorial</h2>
+</header>
+
+<article>
+    <h3>1 - Create Hello World Example</h3><p>To start with a new site, the required folder structure has to be created first. Dachshund splits application logic and content, so both parts have to be defined in order to access our first application.</p>
+<h4>1.1 - Create Content Resource</h4><p>Create the folder <code>/content/helloWorld</code> and create within a new file called <code>.properties.json</code>. The content has to be:</p>
+<pre class="prettyprint source lang-javascript"><code>{
+    &quot;componentPath&quot;: &quot;/apps/helloWorld/pageComponents/helloWorld&quot;,
+    &quot;title&quot;: &quot;Hello World&quot;,
+    &quot;description&quot;: &quot;This is my first Web Page with dachshund&quot;
+}</code></pre><h4>1.2 - Create Component Resource</h4><p>Create the folder <code>/apps/helloWorld/pageComponents/helloWorld</code> and create within a new file called <code>helloWorld.jazz</code>. The content has to be:</p>
+<pre class="prettyprint source lang-html"><code>&lt;html>
+    &lt;head>
+        &lt;title>{properties.title}&lt;/title>
+    &lt;/head>
+    &lt;body>
+        &lt;h1>{properties.title}&lt;/h1>
+        &lt;p>{properties.description}&lt;/p>
+    &lt;/body>
+&lt;/html></code></pre><p>Finally <em>start Dachshund</em> and access <a href="http://localhost:8888/content/helloWorld.html">http://localhost:8888/content/helloWorld.html</a>. You should see the rendered web page filled with the properties defined in the content resource.</p>
+<h3>2 - Organize Component Resource</h3><p>Our component resource consists at the moment out of one file. It's so simple that organizing it in multiple file doesn't really make sense, but usually components are way more complex and organizing them in different files helps maintaining them. Furthermore it will utilize component inheritance later on.</p>
+<p>Within the folder <code>/apps/helloWorld/pageComponents/helloWorld</code> create the file <code>head.jazz</code> with the content:</p>
+<pre class="prettyprint source lang-html"><code>&lt;head>
+    &lt;title>{properties.title}&lt;/title>
+&lt;/head></code></pre><p>and a file called <code>body.jazz</code> with the content:</p>
+<pre class="prettyprint source lang-html"><code>&lt;body>
+    &lt;h1>{properties.title}&lt;/h1>
+    &lt;p>{properties.description}&lt;/p>
+&lt;/body></code></pre><p>finally we change the <code>helloWorld.jazz</code> and replace the current content with the <code>{includeScript('templateFile.jazz')}</code> statements. </p>
+<pre class="prettyprint source lang-html"><code>&lt;html>
+    {includeScript('head.jazz')}
+    {includeScript('body.jazz')}
+&lt;/html></code></pre><p>When we access <a href="http://localhost:8888/content/helloWorld.html">http://localhost:8888/content/helloWorld.html</a> with the running Dachshund server, we should see the rendered web page as it was in the previous exercise. Change the <em>title</em> and <em>description</em> properties in <code>/content/helloWorld/.properties.json</code> and reload the page to see if the changes get applied. </p>
+<h3>3 - Use component Inheritance</h3><p>Components can be build upon each other by using inheritance. As OOP with classes makes it possible to override methods with Dachshund it's possible to override scripts in Dachshund components. When scripts are included with <code>{includeScript('myFile.jazz')}</code> the script will be looked up along the inheritance chain of components and the first match is included. To use inheritance we have to define the suprt component within our component.</p>
+<p>Within the folder <code>/apps/helloWorld/pageComponents/helloWorld</code> create the file <code>.properties.json</code> with the content:</p>
+<pre class="prettyprint source lang-javascript"><code>{
+    &quot;superComponent&quot;: &quot;/apps/core/components/page&quot;
+}</code></pre><p>Now the page component inherits the page component which is part of the <em>core components</em> from Dachshund. The advantage is that basic functionality can be reused and functionality for the purpose of the particular component is overwritten. For our example the files <code>helloWorld.jazz</code> and <code>head.jazz</code> can be deleted. Reload <a href="http://localhost:8888/content/helloWorld.html">http://localhost:8888/content/helloWorld.html</a> to check that the page still works.</p>
+<p>The <code>head.jazz</code> is already defined in the super component. When we want to adjust stylesheets or scripts which are included in the head, we can create a <code>headScripts.jazz</code> or <code>headStyles.jazz</code> in our <code>helloWorld</code> component to do the adjustments for our website in there.</p>
+<p>The demo application <strong>Hello Dachshund</strong> shows how pages can be build on top of each other. The component <code>/apps/helloDachshund/pageComponents/contentPage</code> is inherited from the component <code>homePage</code> in the same folder. It overrides the <code>content.jazz</code> to define the page component specific logic.</p>
+<h3>4 - Create and Include Other Components</h3><p>A website is usually subdivided into smaller functional blocks which we want to control and develop independently. To archive this the component model can be applied to page fragments as well.</p>
+<h4>4.1 - Create Content Resources</h4><p>Create the folder <code>/content/helloWorld/.content/contacts/johnDoe</code> and create within a new file called <code>.properties.json</code>. The content has to be:</p>
+<pre class="prettyprint source lang-javascript"><code>{
+    &quot;componentPath&quot;: &quot;/apps/helloWorld/components/contactData&quot;,
+    &quot;firstName&quot;: &quot;John&quot;,
+    &quot;lastName&quot;: &quot;Doe&quot;,
+    &quot;gender&quot;: &quot;male&quot;,
+    &quot;age&quot;: 42,
+    &quot;street&quot;: &quot;John Dorian Lane 42&quot;,
+    &quot;city&quot;: &quot;Virtuopolis&quot;,
+    &quot;postalCode&quot;: &quot;123456&quot;
+}</code></pre><p>Create the folder <code>/content/helloWorld/.content/contacts/janeDoe</code> and create within a new file called <code>.properties.json</code>. The content has to be:</p>
+<pre class="prettyprint source lang-javascript"><code>{
+    &quot;componentPath&quot;: &quot;/apps/helloWorld/components/contactData&quot;,
+    &quot;firstName&quot;: &quot;Jane&quot;,
+    &quot;lastName&quot;: &quot;Doe&quot;,
+    &quot;gender&quot;: &quot;female&quot;,
+    &quot;age&quot;: 24,
+    &quot;street&quot;: &quot;John Dorian Lane 42&quot;,
+    &quot;city&quot;: &quot;Virtuopolis&quot;,
+    &quot;postalCode&quot;: &quot;123456&quot;
+}</code></pre><h4>4.2 - Create Component Resource</h4><p>Create the folder <code>/apps/helloWorld/components/contactData</code> and create within a new file called <code>contactData.jazz</code>. The content has to be:</p>
+<pre class="prettyprint source lang-html"><code>&lt;address>
+    &lt;h2>{properties.firstName} {properties.lastName} ({properties.age})&lt;/h2>
+    &lt;div>{properties.street}&lt;/div>
+    &lt;div>{properties.postalCode} {properties.city}&lt;/div>
+&lt;/address></code></pre><h4>4.3 - Include Component in the Page Component</h4><p>Open the <code>body.jazz</code> from <code>/apps/helloWorld/pageComponents/helloWorld</code> and add the <code>{includeComponent('pathToComponent')}</code> statements to add the component at this point. After the modification the file should look like this:</p>
+<pre class="prettyprint source lang-html"><code>&lt;body>
+    &lt;h1>{properties.title}&lt;/h1>
+    &lt;p>{properties.description}&lt;/p>
+    &lt;hr>
+    {includeComponent('.content/contacts/johnDoe')}
+    {includeComponent('.content/contacts/janeDoe')}
+&lt;/body></code></pre><p><a href="/module-component-script-handler_jazzHandler.html#includeComponent">All options how to include components are described in the internal Jazz documentation</a>. </p>
+<h3>5. Page Build Prepare Script</h3><p>Usually web pages do more then just printing variables pebbed up with some stylesheets. Usually it requires server side logic to collect or to enhance the information which shall be displayed. Dachshund components provide the possibility to define a file called <code>prepare.js</code> this one is executed prior to the script which builds the rendition.</p>
+<pre class="prettyprint source lang-javascript"><code>'use strict';
+
+const Q = require('q');
+const prepare = exports;
+
+prepare.handle = function(req, res, pathInfo, resource, component) {
+    const deferred = Q.defer();
+
+    // here comes your code which has to call &quot;deferred.resolve()&quot; when it's done
+    // or &quot;deferred.reject(new Error(&quot;&lt;reason>&quot;)) in case there was an error while processing 
+
+    return deferred.promise;
+};</code></pre><h4>5.1 - Add Prepare Script</h4><p>For our demo page we implement a <code>prepare.js</code> in the path <code>/apps/helloWorld/pageComponents/helloWorld</code>. The comments show how the <em>contacts</em> resource get resolved by <a href="RepositorySession.html"><code>RepositorySession</code></a> which is attached to the request. Based on this resource the child resources get resolved which contain the two user contacts which we've created before. The result is attached to <code>resource.properties</code> to use them in the subsequent executed Jazz template.</p>
+<pre class="prettyprint source lang-javascript"><code>'use strict';
+
+const Q = require('q');
+const prepare = exports;
+
+prepare.handle = function(req, res, pathInfo, resource, component) {
+    const deferred = Q.defer();
+
+    // Define the path to the contacts located below '/content/helloDachshund'
+    // which is referenced through the 'resource' variable
+    const pathToContacts = resource.path + '/.content/contacts';
+
+    // Resolve the defined path
+    req.session.resolve(pathToContacts).then(function(contactsResource){
+        // Lookup the child resources of the resolved contacts-resource
+        return contactsResource.getChildResources();
+    }).then(function(contactChildResources){
+        // Attach the list of contact resources to the properties to reuse
+        // them in the Jazz template
+        resource.properties.contactResources = contactChildResources;
+        deferred.resolve();
+    }).fail(deferred.reject);
+
+    return deferred.promise;
+};</code></pre><h4>5.2 - Include Contact Resources</h4><p>To make use of the resolved contact resources, open the <code>body.jazz</code> from <code>/apps/helloWorld/pageComponents/helloWorld</code> and change it so that <code>{includeComponent('pathToComponent')}</code> is surrounded by <code>{foreach contactResource in properties.contactResources}</code> to include the contact components dynamically.</p>
+<pre class="prettyprint source lang-html"><code>&lt;body>
+    &lt;h1>{properties.title}&lt;/h1>
+    &lt;p>{properties.description}&lt;/p>
+    &lt;hr>
+    {foreach contactResource in properties.contactResources}
+        {includeComponent(contactResource.path)}
+    {end}
+&lt;/body></code></pre>
+</article>
+
+</section>
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
+	on Tue Dec 22nd 2015 using the <a
+	href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>

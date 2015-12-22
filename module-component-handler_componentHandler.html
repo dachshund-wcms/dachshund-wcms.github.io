@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Dachshund Source: file-script-handler/lib/fileScriptHandler/imageDimensionsHandler.js</title>
+	<title>Dachshund Module: component-handler/componentHandler</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -71,113 +71,450 @@
 <div class="row">
 
 	
-	<div class="col-md-12">
+	<div class="col-md-8">
 	
 		<div id="main">
 			
 
-		<h1 class="page-title">Source: file-script-handler/lib/fileScriptHandler/imageDimensionsHandler.js</h1>
-    
+	<h1 class="page-title">Module: component-handler/componentHandler</h1>
 <section>
-    <article>
-        <pre
-            class="sunlight-highlight-javascript linenums">/** @module file-script-handler/imageDimensionsHandler */
-'use strict';
 
-const im = require('imagemagick');
-const imageDimensionsHandler = exports;
-const logger = require('dachshund-logger').getLogger(__filename);
-const repositoryManager = require('repository-manager');
-const Q = require('q');
+<header>
+    
+</header>
 
-const extractMetadata = function(metadata)
-{
-	let metadataObject = {
-		type: "",
-		dimensions: "",
-		width: 0,
-		height: 0,
-		sizeInBytes: 0
-	};
-	
-	let metadataParts = metadata.split(" ");
 
-	try {
-		metadataObject.sizeInBytes = parseInt(metadataParts[0].substring(0,metadataParts[0].length - 1));
-		metadataObject.type = metadataParts[1];
-		metadataObject.width = parseInt(metadataParts[2]);
-		metadataObject.height = parseInt(metadataParts[3]);
-		metadataObject.dimensions = metadataObject.width + "x" + metadataObject.height;
-	}catch(ex){
-		logger.error("Error while transforming image metadata: " + ex);
-	}
+<article>
+    <div class="container-overview">
+    
+        
 
-	return metadataObject;
-};
+        
+<dl class="details">
+    
 
-imageDimensionsHandler.test = function(pathInfo)
-{
-	let extension = pathInfo.extension.toLowerCase();
 	
-	if(pathInfo.selector == null)
-	{
-		return false;
-	}
-	
-	let selectorParts = pathInfo.selector.split(".");
-	if(selectorParts.length &lt; 2)
-	{
-		return false;
-	}
-	
-	let secondLastSelector = selectorParts[selectorParts.length - 2].toLowerCase();
-	let lastSelector = selectorParts[selectorParts.length - 1].toLowerCase();
 
-	return lastSelector == "dimensions" &amp;&amp; (secondLastSelector == "png" || secondLastSelector == "gif" || secondLastSelector == "jpg" || secondLastSelector == "jpeg") &amp;&amp; extension == "json";
-};
+	
 
-imageDimensionsHandler.handle = function(req, resp, pathInfo, resource)
-{
-	let selectorParts = pathInfo.selector.split(".");
 	
-	//Remove the "dimensions" from the selector list
-	selectorParts.splice(selectorParts.length - 1, 1);
-	
-	if(selectorParts.length > 2 &amp;&amp; selectorParts[selectorParts.length - 3] == "min" || selectorParts[selectorParts.length - 3] == "max")
-	{
-		selectorParts.splice(selectorParts.length - 3, 1);
-	}
-	
-	if(selectorParts.length > 1 &amp;&amp; selectorParts[selectorParts.length - 2].contains("x"))
-	{
-		selectorParts.splice(selectorParts.length - 2, 1);
-	}
-	let selector = selectorParts.join(".");
-	
-	let naturalImagePath = pathInfo.componentPath + "." + selector;
-	repositoryManager.resolve(naturalImagePath).then(function(resource){
-		let imagePath = naturalImagePath;
-		if(resource.source != undefined)
-		{
-			imagePath = resource.source;
-		}
 
-		return Q.nfcall(im.identify, ["-format", "%b %m %w %h", process.cwd() + imagePath]);
-	}).then(function(metadata){
-		let metadataObject = extractMetadata(metadata);
-		metadataObject.imagePath = naturalImagePath;
-		resp.writeHead(200, {"Content-Type" : "application/json; charset=utf-8"});
-		resp.write(JSON.stringify(metadataObject));
-		resp.end();
-	}).fail(function(err){
-		resp.writeHead(500, {"Content-Type" : "text/plain; charset=utf-8"});
-		resp.write("Error while reading image dimensions " + err);
-		resp.end();
-	});
-};</pre>
-    </article>
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="component-handler_lib_componentHandler.js.html">component-handler/lib/componentHandler.js</a>,
+				 <a href="component-handler_lib_componentHandler.js.html#sunlight-1-line-1">line 1</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+            
+<hr>
+<dt>
+    <h4 class="name" id=".getScriptToHandle"><span class="type-signature">&lt;static> </span>getScriptToHandle(component, prefix)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Lookup a matching script which is able to handle the request with the speicifed selector and extension in the <a href="RequestPathInfo.html"><code>RequestPathInfo</code></a></p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>component</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Component.html">Component</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>with the enclosed request information</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>prefix</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>will be set in front of the script file name to resolve a possible match</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="component-handler_lib_componentHandler.js.html">component-handler/lib/componentHandler.js</a>,
+				 <a href="component-handler_lib_componentHandler.js.html#sunlight-1-line-52">line 52</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>which resolves with the scriptPath {string}</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">promise</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".handle"><span class="type-signature">&lt;static> </span>handle(component)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Processes the component by looking up the script which is matches to the request and to execute the script</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>component</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Component.html">Component</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The component to be handled with the enclosed request information</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="component-handler_lib_componentHandler.js.html">component-handler/lib/componentHandler.js</a>,
+				 <a href="component-handler_lib_componentHandler.js.html#sunlight-1-line-16">line 16</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    <p>resolved when a script could be resolved and executed</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">promise</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+
+    
+</article>
+
 </section>
-
 
 
 
@@ -187,6 +524,10 @@ imageDimensionsHandler.handle = function(req, resp, pathInfo, resource)
 
 	<div class="clearfix"></div>
 
+	
+		<div class="col-md-3">
+			<div id="toc" class="col-md-3 hidden-xs hidden-sm hidden-md"></div>
+		</div>
 	
 
 </div>

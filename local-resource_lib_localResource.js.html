@@ -32,14 +32,21 @@
 			<li class="dropdown">
 				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler.html">component-handler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
+					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler_componentHandler.html">component-handler/componentHandler</a></li><li><a href="module-component-handler_componentLoader.html">component-handler/componentLoader</a></li><li><a href="module-component-handler_dispatcher.html">component-handler/dispatcher</a></li><li><a href="module-component-handler_prepareScriptHandler.html">component-handler/prepareScriptHandler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RepositorySession.html">RepositorySession</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-Development Tutorial.html">Development Tutorial</a></li>
 				</ul>
 			</li>
 			
@@ -99,18 +106,18 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	getFiles(includeHiddenFiles) {
-		var deferred = Q.defer();
+		let deferred = Q.defer();
 		if (includeHiddenFiles == undefined)
 		{
 			includeHiddenFiles == false;
 		}
 
-		var resourceFiles = this._resourceFiles;
+		let resourceFiles = this._resourceFiles;
 
 		if (resourceFiles == null &amp;&amp; this.type == ResourceTypes.RESOURCE)
 		{
 			resourceFiles = [];
-			var path = this.path;
+			let path = this.path;
 			fs.readdirSync("." + path).forEach(function(file) {
 				if (fs.statSync("." + path + "/" + file).isFile() &amp;&amp; (includeHiddenFiles || !file.startsWith(".")))
 				{
@@ -128,7 +135,7 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	fileExists(filename) {
-		var deferred = Q.defer();
+		let deferred = Q.defer();
 
 		const includeHiddenFiles = true;
 		this.getFiles(includeHiddenFiles).then(function(files) {
@@ -142,13 +149,13 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	deleteFile(filename) {
-		var self = this;
-		var deferred = Q.defer();
+		let self = this;
+		let deferred = Q.defer();
 
 		this.fileExists(filename).then(function(fileExists) {
 			if (fileExists)
 			{
-				var filePath = "." + self.path + "/" + filename;
+				let filePath = "." + self.path + "/" + filename;
 				Q.nfcall(fs.unlink, filePath).then(function() {
 					self._resourceFiles = null;
 					deferred.resolve();
@@ -167,14 +174,14 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	deleteAllFiles(includeHiddenFiles) {
-		var self = this;
-		var deferred = Q.defer();
+		let self = this;
+		let deferred = Q.defer();
 
-		var includeHidden = includeHiddenFiles || false;
+		let includeHidden = includeHiddenFiles || false;
 
 		this.getFiles(includeHidden).then(function(fileList) {
 
-			var deleteFilesPromises = [];
+			let deleteFilesPromises = [];
 			fileList.forEach(function(fileName) {
 				deleteFilesPromises.push(self.deleteFile(fileName));
 			});
@@ -192,10 +199,10 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	addFile(sourceReadStream, filename) {
-		var deferred = Q.defer();
+		let deferred = Q.defer();
 
-		var destinationPath = "." + this.path + "/" + filename;
-		var destinationFile = fs.createWriteStream(destinationPath);
+		let destinationPath = "." + this.path + "/" + filename;
+		let destinationFile = fs.createWriteStream(destinationPath);
 		destinationFile.on('finish', deferred.resolve).on('error', deferred.reject);
 		sourceReadStream.pipe(destinationFile);
 
@@ -206,8 +213,8 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	loadScript(scriptName) {
-		var deferred = Q.defer();
-		var self = this;
+		let deferred = Q.defer();
+		let self = this;
 
 		this.fileExists(scriptName).then(function(fileExists) {
 			if (!fileExists)
@@ -218,7 +225,7 @@ class LocalResource extends Resource {
 			{
 				try
 				{
-					var resolvedScript = require(process.cwd() + self.path + "/" + scriptName);
+					let resolvedScript = require(process.cwd() + self.path + "/" + scriptName);
 					deferred.resolve(resolvedScript);
 				} catch (err)
 				{
@@ -234,19 +241,20 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	getChilds() {
-		var deferred = Q.defer();
-		var resourceChilds = this._resourceChilds;
+		let deferred = Q.defer();
+		let resourceChilds = this._resourceChilds || [];
 
-		if (resourceChilds == null &amp;&amp; this.type == ResourceTypes.RESOURCE)
+		if (this.type == ResourceTypes.RESOURCE)
 		{
 			resourceChilds = [];
-			var path = this.path;
+			let path = this.path;
 			fs.readdirSync("." + path).forEach(function(file) {
 				if (fs.statSync("." + path + "/" + file).isDirectory() &amp;&amp; !file.startsWith("."))
 				{
 					resourceChilds.push(file);
 				}
 			});
+
 			this._resourceChilds = resourceChilds;
 		}
 
@@ -258,8 +266,8 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	getChildResources() {
-		var deferred = Q.defer();
-		var self = this;
+		let deferred = Q.defer();
+		let self = this;
 		this.getChilds().then(function(childNames) {
 
 			if (childNames.length == 0)
@@ -271,9 +279,9 @@ class LocalResource extends Resource {
 				}
 			}
 
-			var childResourcePromises = [];
+			let childResourcePromises = [];
 			childNames.forEach(function(childName) {
-				var childResourcePath = self.path + "/" + childName;
+				let childResourcePath = self.path + "/" + childName;
 				childResourcePromises.push(repositoryManager.resolve(childResourcePath));
 			});
 			Q.all(childResourcePromises).then(function(childResources) {
@@ -287,8 +295,8 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	getParentResource() {
-		var deferred = Q.defer();
-		var parentPath = this.path.lastSubstringBefore("/");
+		let deferred = Q.defer();
+		let parentPath = this.path.lastSubstringBefore("/");
 
 		if (parentPath.length > 0)
 		{
@@ -310,7 +318,7 @@ class LocalResource extends Resource {
 		assert(!isNaN(depth), "It is expected that the paramater [depth] is a number.");
 		assert(depth >= 0, "It is expected that the parameter [depth] is greater or equal than zero.");
 
-		var deferred = Q.defer();
+		let deferred = Q.defer();
 
 		depth += 1;
 		if (this.depth &lt; depth)
@@ -323,9 +331,9 @@ class LocalResource extends Resource {
 		}
 		else
 		{
-			var sourcePathFragments = this.path.split("/");
-			var destinationPathFragments = sourcePathFragments.slice(0, depth);
-			var destinationPath = destinationPathFragments.join("/");
+			let sourcePathFragments = this.path.split("/");
+			let destinationPathFragments = sourcePathFragments.slice(0, depth);
+			let destinationPath = destinationPathFragments.join("/");
 			repositoryManager.resolve(destinationPath).then(deferred.resolve).fail(deferred.reject);
 		}
 
@@ -336,13 +344,13 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	getHiddenResourceChilds() {
-		var deferred = Q.defer();
-		var resourceChilds = this._resourceChilds;
+		let deferred = Q.defer();
+		let resourceChilds = this._resourceChilds;
 
 		if (resourceChilds == null &amp;&amp; this.type == resourceTypes.RESOURCE)
 		{
 			resourceChilds = [];
-			var path = this.path;
+			let path = this.path;
 			fs.readdirSync("." + path).forEach(function(file) {
 				if (fs.statSync("." + path + "/" + file).isDirectory() &amp;&amp; file.startsWith("."))
 				{
@@ -360,7 +368,7 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	loadProperties() {
-		var deferred = Q.defer();
+		let deferred = Q.defer();
 
 		this.properties = nodeProperties.load(this.path);
 
@@ -373,8 +381,8 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	saveProperties() {
-		var self = this;
-		var deferred = Q.defer();
+		let self = this;
+		let deferred = Q.defer();
 
 		this.properties.id = this.properties.id || this.id;
 		nodeProperties.save(this.path, this.properties);
@@ -388,7 +396,7 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	loadAuthorization() {
-		var deferred = Q.defer();
+		let deferred = Q.defer();
 
 		this.auth = nodeAuthorization.load(this.path);
 		deferred.resolve(this);
@@ -400,7 +408,7 @@ class LocalResource extends Resource {
 	 * @inheritDoc
 	 */
 	saveAuthorization() {
-		var deferred = Q.defer();
+		let deferred = Q.defer();
 		nodeAuthorization.save(this.path, this.auth);
 
 		deferred.resolve(this);
@@ -448,7 +456,7 @@ module.exports = LocalResource;</pre>
 
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
-	on Sun Dec 20th 2015 using the <a
+	on Tue Dec 22nd 2015 using the <a
 	href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
 </footer>

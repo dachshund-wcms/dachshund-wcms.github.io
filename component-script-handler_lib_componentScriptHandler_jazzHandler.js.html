@@ -32,14 +32,21 @@
 			<li class="dropdown">
 				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler.html">component-handler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
+					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler_componentHandler.html">component-handler/componentHandler</a></li><li><a href="module-component-handler_componentLoader.html">component-handler/componentLoader</a></li><li><a href="module-component-handler_dispatcher.html">component-handler/dispatcher</a></li><li><a href="module-component-handler_prepareScriptHandler.html">component-handler/prepareScriptHandler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RepositorySession.html">RepositorySession</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-Development Tutorial.html">Development Tutorial</a></li>
 				</ul>
 			</li>
 			
@@ -75,29 +82,85 @@
     <article>
         <pre
             class="sunlight-highlight-javascript linenums">/**
- * The Jazz handler handles all HTML templates with the file extension *.jazz. The source and documentation of the
- * templating engine can be found here {@link https://github.com/shinetech/jazz}. The templating engine makes it
- * possible to write html code and to enhance it with place holder, conditions, loops and further predefined javascript
- * methods. Since this handle is executed in a context of a component, it provides access to resource its properties but
- * also to include further scripts from component resource or to include other resources. In addition to the standard
- * functions defined in the jazz documentation the following additional functioanlity is provided:
+ * The Jazz handler handles all HTML templates with the file extension *.jazz. The source and documentation of the templating engine can be found here {@link https://github.com/shinetech/jazz}. The templating engine makes it possible to write html code and to enhance it with place holder, conditions, loops and further predefined javascript methods. Since this handle is executed in a context of a component, it provides access to resource its properties but also to include further scripts from component resource or to include other resources. In addition to the standard functions defined in the jazz documentation the following additional functioanlity is provided:
  *
- * @example
- * &lt;!-- Access a property from the resource of the component -->
- * Hello {properties.yourName} you age is {properties.age}
+ * ### Access Content Resource Property
+ * ```html
+ * Hello {properties.yourFirstName} you age is {properties.age}
  *
- * @example
  * &lt;!-- Access a property from the resource of the component trough a method -->
  * &lt;!-- define a default value, which is uses in case the property doesn't exists -->
  * Hello {getProperty('yourName', 'John Doe')} you age is {getProperty('age', 42)}
+ * ```
  *
- * @example
- * &lt;!-- Include a script from componentResource. The result will be added into the calling jazz file. -->
- * &lt;!-- the execution takes place in the same context. -->
+ * ### Conditional Statements
+ * ```
+ * {if properties.yourFirstName}
+ * 	Hello, {properties.yourFirstName}
+ * {end}
+ *
+ * &lt;!-- with else clause -->
+ * {if properties.yourFirstName}
+ * 	Hello, {properties.yourFirstName}
+ * {else}
+ *  Hello Anonymous
+ * {end}
+ *
+ * &lt;!-- or with else if -->
+ * {if properties.yourFirstName}
+ * 	Hello, {properties.yourFirstName}
+ * {elif properties.yourLastName}
+ *  Hello, Mr. {properties.yourLastName}
+ * {else}
+ *  Hello Anonymous
+ * {end}
+ *
+ * &lt;!-- with logical expressions -->
+ * {if properties.yourFirstName and properties.yourLastName}
+ *  Hello {properties.yourFirstName} {properties.yourLastName}
+ * {end}
+ *
+ * {if properties.usesATablet or properties.usesASmartphone}
+ *  You access the site with a mobile device.
+ * {end}
+ *
+ * {if not properties.driversLicence}
+ *  You are not allowed to drive a car.
+ * {end}
+ *
+ * &lt;!-- comparing two values with eq (equals) or neq (not equals) -->
+ * {if properties.gender eq 'male'}
+ *	Hello, Mr. {properties.yourLastName}
+ * {end}
+ *
+ * {if properties.status neq 'offline'}
+ *	You're online!
+ * {end}
+ * ```
+ *
+ * ### Looping Over an Object
+ * ```
+ * {foreach childPage in properties.chilePages}
+ *  &lt;p>&lt;a href='{childPage.path}.html'>{childPage.name}&lt;/a>&lt;/p>
+ * {end}
+ *
+ * &lt;!-- using counters / index -->
+ * {foreach childPage in properties.chilePages}
+ *  &lt;p>&lt;a href='{childPage.path}.html'>{childPage.name}&lt;/a>&lt;/p>
+ *  &lt;p>Loop number (1 based): {__count}&lt;/p>
+ *  &lt;p>Index (0 based): {__index}&lt;/p>
+ * {end}
+ * ```
+ *
+ * ### Include Script from Component Resource
+ * The result will be added into the calling jazz file. The execution takes place in the same context.
+ * ```
  * {includeScript('nameOfTheOtherScriptInComponentResource.jazz')}
+ * ```
  *
- * @example
- * &lt;!-- Include another component. The path can be relative or absolute. -->
+ * ### Include Components &lt;a name="includeComponent">&lt;/a>
+ * ```
+ * &lt;!-- The path can be relative or absolute. -->
  * {includeComponent('footer')}
  * {includeComponent('./footer')}
  * {includeComponent('../parentPath')}
@@ -109,9 +172,11 @@
  *
  * &lt;!-- When the component provides different renditions depending on the selector, the selector can be passed on -->
  * &lt;!-- as well, to provide for example overview, detail or edit view with one component -->
- * {includeComponent('footer', '/apps/myApp/footer', 'compact')}
+ * {includeComponent('footer', '/apps/myApp/footer', 'compact')}`
+ * ```
  *
- * @example
+ * ### Further Utility Functions
+ * ```
  * &lt;!-- Furthermore some methods are provided to utilize the templating process -->
  *
  * &lt;!-- Use translation with nodejs module i18n -->
@@ -130,7 +195,8 @@
  * {isDefined(variableToBeChecked)}
  *
  * &lt;!-- Escapes special charactors in a string -->
- * {escape(stringToBeEscaped)}
+ * {escape(stringToBeEscaped)}`
+ * ```
  *
  * @module component-script-handler/jazzHandler
  */
@@ -344,7 +410,7 @@ jazzHandler.includeScript = function(scriptFilename, cb, component, parameter) {
 
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
-	on Sun Dec 20th 2015 using the <a
+	on Tue Dec 22nd 2015 using the <a
 	href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
 </footer>

@@ -32,14 +32,21 @@
 			<li class="dropdown">
 				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler.html">component-handler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
+					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler_componentHandler.html">component-handler/componentHandler</a></li><li><a href="module-component-handler_componentLoader.html">component-handler/componentLoader</a></li><li><a href="module-component-handler_dispatcher.html">component-handler/dispatcher</a></li><li><a href="module-component-handler_prepareScriptHandler.html">component-handler/prepareScriptHandler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RepositorySession.html">RepositorySession</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-Development Tutorial.html">Development Tutorial</a></li>
 				</ul>
 			</li>
 			
@@ -74,7 +81,7 @@
 <section>
     <article>
         <pre
-            class="sunlight-highlight-javascript linenums">/** @module component-handler */
+            class="sunlight-highlight-javascript linenums">/** @module component-handler/prepareScriptHandler */
 'use strict';
 
 const Q = require('q');
@@ -85,16 +92,28 @@ const prepareScriptHandler = exports;
  * @const
  * @type {number}
  */
-var ELEMENT_NOT_FOUND = -1;
+const ELEMENT_NOT_FOUND = -1;
 
+/**
+ * A component resource may have a file called 'prepare.js'. This file is executed prior to the component script which
+ * is lookup up based on the {@link RequestPathInfo}. The prepare script is able to enhance the component and enclosed
+ * resource with further information which processed during runtime.
+ * @param component - component as base to lookup the prepare script of this and all super components
+ * @returns {promise} resolves when no prepare could be found or all found prepare scripts are executed succesful
+ * @alias module:component-handler/prepareScriptHandler.resolveAndHandle
+ */
 prepareScriptHandler.resolveAndHandle = function(component) {
-	var deferred = Q.defer();
-	this.resolvePrepareScripts(component).then(function(prepareScriptList) {
-		var prepareScriptPromises = [];
+	let deferred = Q.defer();
+	// Step 1: Lookup the prepare script of the component and all super components
+	// This promise fails when no prepare script could be found
+	prepareScriptHandler.resolvePrepareScripts(component).then(function(prepareScriptList) {
+		let prepareScriptPromises = [];
+		//Step 2: Execute them and collect the promises
 		prepareScriptList.forEach(function(prepareScript) {
 			prepareScriptPromises.push(component.executeScript(prepareScript));
 		});
 		logger.trace(prepareScriptList.length + " prepare script for component [" + component.componentResource.path + "] processed");
+		//Step 3: Wait until all prepare scripts are executed or one failed
 		Q.all(prepareScriptPromises).then(deferred.resolve).fail(function(error){
 			logger.error("Error while executing prepare script ["+ error.toString() +"]");
 			deferred.reject();
@@ -106,9 +125,15 @@ prepareScriptHandler.resolveAndHandle = function(component) {
 	return deferred.promise;
 };
 
+/**
+ *
+ * @param {Component} component
+ * @param {string[]} prepareScripts
+ * @returns {promise} resolved with
+ */
 prepareScriptHandler.resolvePrepareScripts = function(component, prepareScripts) {
-	var deferred = Q.defer();
-	var self = this;
+	let deferred = Q.defer();
+	let self = this;
 
 	if (prepareScripts == undefined)
 	{
@@ -178,7 +203,7 @@ prepareScriptHandler.resolvePrepareScripts = function(component, prepareScripts)
 
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
-	on Sun Dec 20th 2015 using the <a
+	on Tue Dec 22nd 2015 using the <a
 	href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
 </footer>

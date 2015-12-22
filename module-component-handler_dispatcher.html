@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Dachshund Module: file-script-handler/imageSizeHandler</title>
+	<title>Dachshund Module: component-handler/dispatcher</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -76,7 +76,7 @@
 		<div id="main">
 			
 
-	<h1 class="page-title">Module: file-script-handler/imageSizeHandler</h1>
+	<h1 class="page-title">Module: component-handler/dispatcher</h1>
 <section>
 
 <header>
@@ -124,8 +124,8 @@
 	<dd class="tag-source">
 		<ul class="dummy">
 			<li>
-				<a href="file-script-handler_lib_fileScriptHandler_imageSizeHandler.js.html">file-script-handler/lib/fileScriptHandler/imageSizeHandler.js</a>,
-				 <a href="file-script-handler_lib_fileScriptHandler_imageSizeHandler.js.html#sunlight-1-line-1">line 1</a>
+				<a href="component-handler_lib_dispatcher.js.html">component-handler/lib/dispatcher.js</a>,
+				 <a href="component-handler_lib_dispatcher.js.html#sunlight-1-line-1">line 1</a>
 			</li>
 		</ul>
 	</dd>
@@ -162,7 +162,7 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="~createThumbnail"><span class="type-signature">&lt;inner> </span>createThumbnail(thumbProperties)</h4>
+    <h4 class="name" id=".complete"><span class="type-signature">&lt;static> </span>complete(res, pathInfo, data)</h4>
     
     
 </dt>
@@ -170,7 +170,7 @@
 
     
     <div class="description">
-        <p>Creates the thumbnail and stores it at the parent resource where the original image belongs to</p>
+        <p>Called when component is processed and the result shall be send within the response</p>
     </div>
     
 
@@ -205,13 +205,13 @@
 
         <tr>
             
-                <td class="name"><code>thumbProperties</code></td>
+                <td class="name"><code>res</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">ImageProperties</span>
+<span class="param-type">ServerResponse</span>
 
 
 
@@ -222,7 +222,55 @@
 
             
 
-            <td class="description last"><p>Information about the thumbnail process</p></td>
+            <td class="description last"><p>Response to which the data shall be send</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>pathInfo</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="RequestPathInfo.html">RequestPathInfo</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>To resolve the mime type from the requested file extension</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>processed data to be passed back in the HTTP response</p></td>
         </tr>
 
     
@@ -266,8 +314,8 @@
 	<dd class="tag-source">
 		<ul class="dummy">
 			<li>
-				<a href="file-script-handler_lib_fileScriptHandler_imageSizeHandler.js.html">file-script-handler/lib/fileScriptHandler/imageSizeHandler.js</a>,
-				 <a href="file-script-handler_lib_fileScriptHandler_imageSizeHandler.js.html#sunlight-1-line-106">line 106</a>
+				<a href="component-handler_lib_dispatcher.js.html">component-handler/lib/dispatcher.js</a>,
+				 <a href="component-handler_lib_dispatcher.js.html#sunlight-1-line-21">line 21</a>
 			</li>
 		</ul>
 	</dd>
@@ -292,26 +340,6 @@
     
 
     
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">*</span>
-
-
-
-    </dd>
-</dl>
-
-
-        
 
     
 </dd>
@@ -320,7 +348,7 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="~ImageProperties"><span class="type-signature">&lt;inner> </span>ImageProperties(pathInfo)</h4>
+    <h4 class="name" id=".dispatchRequest"><span class="type-signature">&lt;static> </span>dispatchRequest(req, res, pathInfo, contentResource)</h4>
     
     
 </dt>
@@ -328,7 +356,7 @@
 
     
     <div class="description">
-        <p>Resolves the necessary parameters to create the image thumbnail</p>
+        <p>Dispatched the HTTP request</p>
     </div>
     
 
@@ -363,10 +391,16 @@
 
         <tr>
             
-                <td class="name"><code>pathInfo</code></td>
+                <td class="name"><code>req</code></td>
             
 
             <td class="type">
+            
+                
+<span class="param-type">ClientRequest</span>
+
+
+
             
             </td>
 
@@ -374,7 +408,79 @@
 
             
 
-            <td class="description last"><p>RequestPathInfo object resolved from the http request</p></td>
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">ServerResponse</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>pathInfo</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="RequestPathInfo.html">RequestPathInfo</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>contentResource</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Resource.html">Resource</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
         </tr>
 
     
@@ -418,8 +524,173 @@
 	<dd class="tag-source">
 		<ul class="dummy">
 			<li>
-				<a href="file-script-handler_lib_fileScriptHandler_imageSizeHandler.js.html">file-script-handler/lib/fileScriptHandler/imageSizeHandler.js</a>,
-				 <a href="file-script-handler_lib_fileScriptHandler_imageSizeHandler.js.html#sunlight-1-line-176">line 176</a>
+				<a href="component-handler_lib_dispatcher.js.html">component-handler/lib/dispatcher.js</a>,
+				 <a href="component-handler_lib_dispatcher.js.html#sunlight-1-line-63">line 63</a>
+			</li>
+		</ul>
+	</dd>
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".fail"><span class="type-signature">&lt;static> </span>fail(res, data)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Called when something went wrong while processing the component. It ends the request properly and provides<br>further information why the request failed</p>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">ServerResponse</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Response to which the data shall be send</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Error</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>error message which is send back in the HTTP response</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+	<dt class="tag-source method-doc-label method-doc-details-label">Source:</dt>
+	<dd class="tag-source">
+		<ul class="dummy">
+			<li>
+				<a href="component-handler_lib_dispatcher.js.html">component-handler/lib/dispatcher.js</a>,
+				 <a href="component-handler_lib_dispatcher.js.html#sunlight-1-line-36">line 36</a>
 			</li>
 		</ul>
 	</dd>

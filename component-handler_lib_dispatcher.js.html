@@ -32,14 +32,21 @@
 			<li class="dropdown">
 				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler.html">component-handler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
+					<li><a href="module-authentication-handler-basic-auth.html">authentication-handler-basic-auth</a></li><li><a href="module-component-handler_componentHandler.html">component-handler/componentHandler</a></li><li><a href="module-component-handler_componentLoader.html">component-handler/componentLoader</a></li><li><a href="module-component-handler_dispatcher.html">component-handler/dispatcher</a></li><li><a href="module-component-handler_prepareScriptHandler.html">component-handler/prepareScriptHandler</a></li><li><a href="module-component-script-handler_jazzHandler.html">component-script-handler/jazzHandler</a></li><li><a href="module-componentScriptHandler.html">componentScriptHandler</a></li><li><a href="module-dachshund-logger.html">dachshund-logger</a></li><li><a href="module-file-script-handler_imageDimensionsHandler.html">file-script-handler/imageDimensionsHandler</a></li><li><a href="module-file-script-handler_imageExifHandler.html">file-script-handler/imageExifHandler</a></li><li><a href="module-file-script-handler_imageSizeHandler.html">file-script-handler/imageSizeHandler</a></li><li><a href="module-q-utils.html">q-utils</a></li><li><a href="module-string-utils.html">string-utils</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+					<li><a href="Component.html">Component</a></li><li><a href="DachshundError.html">DachshundError</a></li><li><a href="LocalResource.html">LocalResource</a></li><li><a href="RepositorySession.html">RepositorySession</a></li><li><a href="RequestPathInfo.html">RequestPathInfo</a></li><li><a href="Resource.html">Resource</a></li><li><a href="ResourceTypes.html">ResourceTypes</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="tutorials.list.html" class="dropdown-toggle" data-toggle="dropdown">Tutorials<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="tutorial-Development Tutorial.html">Development Tutorial</a></li>
 				</ul>
 			</li>
 			
@@ -74,7 +81,7 @@
 <section>
     <article>
         <pre
-            class="sunlight-highlight-javascript linenums">/** @module component-handler */
+            class="sunlight-highlight-javascript linenums">/** @module component-handler/dispatcher */
 'use strict';
 
 const Q = require('q');
@@ -87,6 +94,13 @@ const mime = require("mime");
 
 const dispatcher = exports;
 
+/**
+ * Called when component is processed and the result shall be send within the response
+ * @param {ServerResponse} res - Response to which the data shall be send
+ * @param {RequestPathInfo} pathInfo - To resolve the mime type from the requested file extension
+ * @param {string} data - processed data to be passed back in the HTTP response
+ * @alias module:component-handler/dispatcher.complete
+ */
 dispatcher.complete = function(res, pathInfo, data) {
 	let mimetype = mime.lookup(pathInfo.extension);
 
@@ -95,28 +109,39 @@ dispatcher.complete = function(res, pathInfo, data) {
 	res.end();
 };
 
+/**
+ * Called when something went wrong while processing the component. It ends the request properly and provides
+ * further information why the request failed
+ * @param {ServerResponse} res - Response to which the data shall be send
+ * @param {string|Error} data - error message which is send back in the HTTP response
+ * @alias module:component-handler/dispatcher.fail
+ */
 dispatcher.fail = function(res, data) {
-	let message = data;
+	let responseMessage = data;
+	let logMessage = data;
 	if (data instanceof Error)
 	{
-		message = data.message;
+		responseMessage = data.message;
+		logMessage = data.message + '\n' + data.stack;
 	}
 	else if (!(data instanceof String))
 	{
-		message = JSON.stringify(data, null, 4);
+		responseMessage = JSON.stringify(data, null, 4);
+		logMessage = responseMessage;
 	}
-	logger.error(message);
+	logger.error(logMessage);
 	res.writeHead(500, {"Content-Type": "text/plain; charset=utf-8"});
-	res.write(message);
+	res.write(responseMessage);
 	res.end();
 };
 
 /**
  * Dispatched the HTTP request
- * @param req {Object} HTTP request
- * @param res {Object} HTTP response
- * @param pathInfo {RequestPathInfo}
- * @param contentResource
+ * @param {ClientRequest} req
+ * @param {ServerResponse} res
+ * @param {RequestPathInfo} pathInfo
+ * @param {Resource} contentResource
+ * @alias module:component-handler/dispatcher.dispatchRequest
  */
 dispatcher.dispatchRequest = function(req, res, pathInfo, contentResource) {
 	let deferred = Q.defer();
@@ -145,6 +170,11 @@ dispatcher.dispatchRequest = function(req, res, pathInfo, contentResource) {
 	}
 
 	repositoryManager.resolve(componentResourcePath).then(function(componentResource) {
+		if(resourceTypes.NOT_FOUND == componentResource.type)
+		{
+			throw new Error('The component resource ['+ componentResourcePath +'] couldn\'t be found.');
+		}
+
 		return componentLoader.load(req, res, pathInfo, contentResource, componentResource);
 	}).then(function(component) {
 		componentHandler.handle(component).then(deferred.resolve).fail(deferred.reject);
@@ -302,7 +332,7 @@ dispatcher.dispatchComponent = function(resourcePath, componentPath, parentCompo
 
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
-	on Sun Dec 20th 2015 using the <a
+	on Tue Dec 22nd 2015 using the <a
 	href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
 </footer>
