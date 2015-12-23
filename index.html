@@ -139,14 +139,11 @@
 <li>GIT Version Control System (command line client or some UI client)</li>
 </ul>
 <h2>Setup</h2><h3>Step 1 - Clone Dachshund from GitHub</h3><p>Use your UI client and clone the repository <em><a href="https://github.com/dachshund-wcms/core">https://github.com/dachshund-wcms/core</a></em> change to the flag version 2.0 or use a command line client.</p>
-<blockquote>
-<p>cd basepath/to/clone/dachshund<br>git clone <a href="https://github.com/dachshund-wcms/core">https://github.com/dachshund-wcms/core</a> dachshund<br>cd dachshund<br>git checkout 2.0</p>
-</blockquote>
-<h3>Step 2 - Finish installation</h3><p>Open a command line window and change to the dachshund folder. There you have to download the dependencies with node package manager as they're defined in the <em>package.json</em>.</p>
-<blockquote>
-<p>cd path/to/dachshund<br>npm install</p>
-</blockquote>
-<h2>Startup</h2><p>Dachshund provides two methods to be started as normal or as debug application from the shell. The difference is that with one method its possible to use remote debugging like <a href="https://github.com/node-inspector/node-inspector">node-inspector</a>. The other one starts just the application and redirects the log output into a log file.</p>
+<pre class="prettyprint source lang-bash"><code>cd basepath/to/clone/dachshund
+git clone [https://github.com/dachshund-wcms/core](https://github.com/dachshund-wcms/core) dachshund
+cd dachshund</code></pre><h3>Step 2 - Finish installation</h3><p>Open a command line window and change to the dachshund folder. There you have to download the dependencies with node package manager as they're defined in the <em>package.json</em>.</p>
+<pre class="prettyprint source lang-bash"><code>cd path/to/dachshund
+npm install</code></pre><h2>Startup</h2><p>Dachshund provides two methods to be started as normal or as debug application from the shell. The difference is that with one method its possible to use remote debugging like <a href="https://github.com/node-inspector/node-inspector">node-inspector</a>. The other one starts just the application and redirects the log output into a log file.</p>
 <h2>Version History</h2><ul>
 <li><strong>2.0</strong> - First publicly available version. It is contains the core of <em>Dachshund</em> and all functionality to build applications or rich frontend on top of it.<ul>
 <li>REST API</li>

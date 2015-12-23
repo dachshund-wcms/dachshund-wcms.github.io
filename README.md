@@ -61,16 +61,19 @@ The filtering is applied to the file name, while the _script extension_ states h
 ### Step 1 - Clone Dachshund from GitHub
 Use your UI client and clone the repository _[https://github.com/dachshund-wcms/core](https://github.com/dachshund-wcms/core)_ change to the flag version 2.0 or use a command line client.
 
-> cd basepath/to/clone/dachshund
-> git clone [https://github.com/dachshund-wcms/core](https://github.com/dachshund-wcms/core) dachshund
-> cd dachshund
-> git checkout 2.0
+```bash
+cd basepath/to/clone/dachshund
+git clone [https://github.com/dachshund-wcms/core](https://github.com/dachshund-wcms/core) dachshund
+cd dachshund
+```
 
 ### Step 2 - Finish installation
 Open a command line window and change to the dachshund folder. There you have to download the dependencies with node package manager as they're defined in the _package.json_.
 
-> cd path/to/dachshund
-> npm install
+```bash
+cd path/to/dachshund
+npm install
+```
 
 ## Startup
 Dachshund provides two methods to be started as normal or as debug application from the shell. The difference is that with one method its possible to use remote debugging like [node-inspector](https://github.com/node-inspector/node-inspector). The other one starts just the application and redirects the log output into a log file.
